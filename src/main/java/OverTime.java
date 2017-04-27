@@ -13,7 +13,8 @@ public class OverTime {
     }
 
     float getOverTimeUsingCalendar(String comeDate, String leaveDate) {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+//        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        DateFormat df = new SimpleDateFormat("HH:mm");
         Calendar calComeDate = Calendar.getInstance();
         Calendar calLeaveDate = Calendar.getInstance();
         final int NINE_HOURS = 9;
