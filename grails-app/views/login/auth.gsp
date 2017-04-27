@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
     <title>AdminLTE 2 | Log in</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
@@ -41,50 +42,50 @@
     <div class="login-box-body">
         <p class="login-box-msg">Sign in to start your session</p>
 
-        <!--<form action="../../index2.html" method="post">-->
-        <!--<div class="form-group has-feedback">-->
-        <!--<input type="email" class="form-control" placeholder="Email">-->
-        <!--<span class="glyphicon glyphicon-envelope form-control-feedback"></span>-->
-        <!--</div>-->
-        <!--<div class="form-group has-feedback">-->
-        <!--<input type="password" class="form-control" placeholder="Password">-->
-        <!--<span class="glyphicon glyphicon-lock form-control-feedback"></span>-->
-        <!--</div>-->
-        <!--<div class="row">-->
-        <!--<div class="col-xs-8">-->
-        <!--<div class="checkbox icheck">-->
-        <!--<label>-->
-        <!--<input type="checkbox"> Remember Me-->
-        <!--</label>-->
-        <!--</div>-->
-        <!--</div>-->
-        <!--&lt;!&ndash; /.col &ndash;&gt;-->
-        <!--<div class="col-xs-4">-->
-        <!--<button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>-->
-        <!--</div>-->
-        <!--&lt;!&ndash; /.col &ndash;&gt;-->
-        <!--</div>-->
-        <!--</form>-->
-
         <g:form controller="login" action="authenticate" method="POST">
-            <!--<ul class="nav navbar-nav collapse navbar-collapse">
-                <li class="dropdown"><a href="#">Select Your Company<i class="fa fa-angle-down"></i></a>
-                    <ul role="menu" class="sub-menu">
-                        <li><a href="#">LG Vietnam</a></li>
-                        <li><a href="#">Samsung Electronics Vietnam</a></li>
-                        <li><a href="#">Hyundai Corporation</a></li>
-      <li><a href="#">EM Partners</a></li>
-                    </ul>
-                </li>
-            </ul>-->
-            <input type="text" placeholder="Employee ID" name="username"/>
-            <input type="password" placeholder="Password" name="password"/>
-            <span>
-            <input type="checkbox" class="checkbox">
-      Keep me logged in
-      </span>
-            <button type="submit" class="btn btn-default">Login</button>
+        <div class="form-group has-feedback">
+        <input type="text" class="form-control" placeholder="Username" name="username">
+        <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+        </div>
+        <div class="form-group has-feedback">
+        <input type="password" class="form-control" placeholder="Password" name="password">
+        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+        </div>
+        <div class="row">
+        <div class="col-xs-8">
+        <div class="checkbox icheck">
+        <label>
+        <input type="checkbox"> Remember Me
+        </label>
+        </div>
+        </div>
+        <!-- /.col -->
+        <div class="col-xs-4">
+        <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
+        </div>
+        <!-- /.col -->
+        </div>
         </g:form>
+
+        <!--<g:form controller="login" action="authenticate" method="POST">-->
+            <!--&lt;!&ndash;<ul class="nav navbar-nav collapse navbar-collapse">-->
+                <!--<li class="dropdown"><a href="#">Select Your Company<i class="fa fa-angle-down"></i></a>-->
+                    <!--<ul role="menu" class="sub-menu">-->
+                        <!--<li><a href="#">LG Vietnam</a></li>-->
+                        <!--<li><a href="#">Samsung Electronics Vietnam</a></li>-->
+                        <!--<li><a href="#">Hyundai Corporation</a></li>-->
+      <!--<li><a href="#">EM Partners</a></li>-->
+                    <!--</ul>-->
+                <!--</li>-->
+            <!--</ul>&ndash;&gt;-->
+            <!--<input type="text" placeholder="Employee ID" name="username"/>-->
+            <!--<input type="password" placeholder="Password" name="password"/>-->
+            <!--<span>-->
+            <!--<input type="checkbox" class="checkbox">-->
+      <!--Keep me logged in-->
+      <!--</span>-->
+            <!--<button type="submit" class="btn btn-default">Login</button>-->
+        <!--</g:form>-->
 
 
         <div class="social-auth-links text-center">
@@ -107,11 +108,14 @@
 <!-- /.login-box -->
 
 <!-- jQuery 2.2.3 -->
-<script src="../../plugins/jQuery/jquery-2.2.3.min.js"></script>
+<asset:javascript src="/jquery-2.2.3.min.js"/>
+<!--<script src="../../plugins/jQuery/jquery-2.2.3.min.js"></script>-->
 <!-- Bootstrap 3.3.7 -->
-<script src="../../bootstrap/js/bootstrap.min.js"></script>
+<asset:javascript src="/bootstrap.min.js"/>
+<!--<script src="../../bootstrap/js/bootstrap.min.js"></script>-->
 <!-- iCheck -->
-<script src="../../plugins/iCheck/icheck.min.js"></script>
+<asset:javascript src="/icheck.min.js"/>
+<!--<script src="../../plugins/iCheck/icheck.min.js"></script>-->
 <script>
   $(function () {
     $('input').iCheck({
