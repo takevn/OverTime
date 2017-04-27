@@ -4,6 +4,11 @@
 grails.plugin.springsecurity.userLookup.userDomainClassName = 'org.example.SecUser'
 grails.plugin.springsecurity.userLookup.authorityJoinClassName = 'org.example.SecUserSecRole'
 grails.plugin.springsecurity.authority.className = 'org.example.SecRole'
+grails.plugin.springsecurity.successHandler.defaultTargetUrl = '/gateWay/index'
+grails.plugin.springsecurity.auth.loginFormUrl = '/login/auth'
+grails.plugin.springsecurity.failureHandler.defaultFailureUrl = '/gateWay/index/?login_error=1'
+grails.plugin.springsecurity.logout.postOnly = false
+
 grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 	[pattern: '/',               access: ['permitAll']],
 	[pattern: '/error',          access: ['permitAll']],

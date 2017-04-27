@@ -46,6 +46,7 @@ public class OverTime {
 
     private void roundComeDate(Calendar calendar) {
         // if HOUR_OF_DAY then hour set to 08:00 and return
+        calendar.get(Calendar.DAY_OF_MONTH);
         if (calendar.get(Calendar.HOUR_OF_DAY) < 8) {
             calendar.set(Calendar.HOUR_OF_DAY, 8);
             calendar.set(Calendar.MINUTE, 0);
