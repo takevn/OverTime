@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Gradle: org.springframework.security:spring-security-web:4.0.4.RELEASE">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/springframework/security/spring-security-web/4.0.4.RELEASE/spring-security-web-4.0.4.RELEASE.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

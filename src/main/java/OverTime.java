@@ -3,9 +3,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-/**
- * Created by bipjpnvm015 on 2017/04/21.
- */
 public class OverTime {
     float roundHalf(float inputNumber) {
         float roundedNumber = Math.round(inputNumber - 0.5f);

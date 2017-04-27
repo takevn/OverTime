@@ -1,4 +1,3 @@
-import org.apache.tools.ant.taskdefs.optional.extension.Specification
 import spock.lang.Specification
 import spock.lang.Unroll
 
