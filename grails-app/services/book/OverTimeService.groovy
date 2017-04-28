@@ -53,6 +53,12 @@ class OverTimeService {
 
             roundComeDate(calComeDate)
             roundLeaveDate(calLeaveDate)
+
+            float a = calComeDate.get(Calendar.HOUR_OF_DAY)
+            float b = calComeDate.get(Calendar.MINUTE)
+            float c = calLeaveDate.get(Calendar.HOUR_OF_DAY)
+            float d = calLeaveDate.get(Calendar.MINUTE)
+
             float comeDateInMiliseconds = calComeDate.getTime().getTime()
             float comdateHours = comeDateInMiliseconds / (60 * 1000 * 60) % 60
             float leaveDarteInMiliseconds = calLeaveDate.getTime().getTime()
@@ -68,7 +74,7 @@ class OverTimeService {
 
             if (overTimeInHours < 0) return 0
 
-            return overTimeInHours
+            return roundHalf(overTimeInHours)
         } catch (ParseException e) {
             e.printStackTrace()
         }
@@ -104,7 +110,14 @@ class OverTimeService {
 
     private void roundLeaveDate(Calendar calendar) {
         // if HourOfLeaveDate > 19:15 aproate round
+        // TODO remove test code
+        float c0 = calendar.get(Calendar.HOUR_OF_DAY)
+        float d0 = calendar.get(Calendar.MINUTE)
         roundHourOfLeaveDate(calendar)
+
+        // TODO remove test code
+        float c = calendar.get(Calendar.HOUR_OF_DAY)
+        float d = calendar.get(Calendar.MINUTE)
 
         // if DAY_OF_WEEK == 1(SUNDAY) and HOUR_OF_DAY = 12 then set minute = 0
         if ((calendar.get(Calendar.HOUR_OF_DAY) == 12) && (calendar.get(Calendar.DAY_OF_WEEK) == 1)) {
@@ -124,23 +137,27 @@ class OverTimeService {
         } else {
             calendar.set(Calendar.MINUTE, 30)
         }
+        // TODO remove test code
+        float c1 = calendar.get(Calendar.HOUR_OF_DAY)
+        float d2= calendar.get(Calendar.MINUTE)
     }
 
     private Calendar roundHourOfLeaveDate(Calendar calendar) {
         int hour = calendar.get(Calendar.HOUR_OF_DAY)
         int minute = calendar.get(Calendar.MINUTE)
-        if (calendar.get(Calendar.HOUR_OF_DAY) >= 20) {
-            if (calendar.get(Calendar.MINUTE) < 15) {
-                calendar.set(Calendar.MINUTE, 15)
-            }
+        // if hour > 20:15
+        if ((calendar.get(Calendar.HOUR_OF_DAY) > 20) ||
+                ((calendar.get(Calendar.HOUR_OF_DAY) == 20) && (calendar.get(Calendar.MINUTE) >= 15))){
+
             calendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY) - 1)
             return calendar
-        }
-        if ((calendar.get(Calendar.HOUR_OF_DAY) >= 19) && (calendar.get(Calendar.MINUTE) >= 15)) {
+        } else if (((calendar.get(Calendar.HOUR_OF_DAY) == 20) && (calendar.get(Calendar.MINUTE) < 15)) ||
+                (calendar.get(Calendar.HOUR_OF_DAY) == 19) && (calendar.get(Calendar.MINUTE) >= 15)) {
             calendar.set(Calendar.HOUR_OF_DAY, 19)
             calendar.set(Calendar.MINUTE, 15)
             return calendar
         }
+
         return calendar
     }
 }
