@@ -20,5 +20,8 @@ class OvertimeHistory {
         leaveHour blank: false
         leaveMinute blank: false
 //        if (comeHour > leaveHour) return ['comeHourBiggerThanleaveHour']
+        comeHour validator: {val, obj, errors->
+            if(obj.leaveHour < val) errors.rejectValue('comeTime', 'noMatch')
+        }
     }
 }
