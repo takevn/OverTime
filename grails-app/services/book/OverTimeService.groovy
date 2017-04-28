@@ -10,7 +10,7 @@ import bip.ot.OverTime;
 @Transactional
 class OverTimeService {
 
-    float getOverTime(String year, String month, String day, String comeTime, String leaveTime) throws Exception {
+    def getOverTime(String year, String month, String day, String comeTime, String leaveTime) throws Exception {
         StringBuilder comeDate = new StringBuilder()
         StringBuilder leaveDate = new StringBuilder()
         OverTime overTime = new OverTime();
@@ -29,6 +29,20 @@ class OverTimeService {
         comeDate.append(" ").append(comeTime)
         leaveDate.append(" ").append(leaveTime)
 
-        return overTime.getOverTimeUsingCalendar(comeDate.toString(), leaveDate.toString())
+        Calendar calendar = Calendar.getInstance()
+        calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(day))
+        calendar.set(Calendar.MONTH, Integer.parseInt(month)-1)
+        calendar.set(Calendar.YEAR, Integer.parseInt(year))
+        int dayofweek = calendar.get(Calendar.DAY_OF_WEEK)
+
+        boolean isWeekend = false
+        if (dayofweek == 1) {
+            isWeekend = true
+        }
+        println " = $dayofweek"
+        println "month = $month"
+        int dayofmonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        double overTimes =  overTime.getOverTimeUsingCalendar(comeDate.toString(), leaveDate.toString())
+        return [overTimes:overTimes,isWeekend:isWeekend ]
     }
 }

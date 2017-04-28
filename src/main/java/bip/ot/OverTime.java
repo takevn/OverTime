@@ -4,8 +4,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 
 public class OverTime {
     double roundHalf(double inputNumber) {
@@ -16,7 +14,7 @@ public class OverTime {
         return roundedNumber;
     }
 
-    Map<Integer, Object> getOverTimeUsingCalendar(String year, String month, String day, String comeTime, String leaveTime) throws Exception {
+    double getOverTimeUsingCalendar(String year, String month, String day, String comeTime, String leaveTime) throws Exception {
         StringBuilder comeDate = new StringBuilder();
         StringBuilder leaveDate = new StringBuilder();
 
@@ -37,7 +35,7 @@ public class OverTime {
         return getOverTimeUsingCalendar(comeDate.toString(), leaveDate.toString());
     }
 
-    Map<Integer, Object> getOverTimeUsingCalendar(String comeDate, String leaveDate) {
+    double getOverTimeUsingCalendar(String comeDate, String leaveDate) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 //        DateFormat df = new SimpleDateFormat("HH:mm");
         Calendar calComeDate = Calendar.getInstance();
@@ -45,8 +43,6 @@ public class OverTime {
         final double NINE_HOURS = 9;
         final double FIFTEEN_MINUTES = 60 * 1000 * 15;
         double overTimeInHours = 0;
-        Map<Integer, Object> resultMap = new HashMap<Integer, Object>() {};
-        Boolean isSunday = false;
 
         try {
             calComeDate.setTime(df.parse(comeDate));
@@ -75,24 +71,24 @@ public class OverTime {
                 diffHour -= 0.5;
             }
 
-            // sunday case
+            // NORMAL DAY case
             if (calLeaveDate.get(Calendar.DAY_OF_WEEK) != 1) {
                 overTimeInHours = diffHour - NINE_HOURS;
-            } else if (calLeaveDate.get(Calendar.HOUR_OF_DAY) > 13) {
-                isSunday = true;
-                overTimeInHours = diffHour - 1;
+            } else {// Sunday case
+                // leave after 13:00
+                if (calLeaveDate.get(Calendar.HOUR_OF_DAY) > 13) {
+                    overTimeInHours = diffHour - 1;
+                }
             }
-            resultMap.put(1, isSunday);
-            if (overTimeInHours < 0) overTimeInHours = 0;
 
-            resultMap.put(1, roundHalf(overTimeInHours));
+            if (overTimeInHours < 0) return 0;
 
-            return resultMap;
+            return roundHalf(overTimeInHours);
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
-        return resultMap;
+        return overTimeInHours;
     }
 
     private void roundComeDate(Calendar calendar) {
