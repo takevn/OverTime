@@ -6,15 +6,15 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class OverTime {
-    float roundHalf(float inputNumber) {
-        float roundedNumber = Math.round(inputNumber - 0.5f);
-        if ((inputNumber - roundedNumber) >= 0.5f) {
-            return (roundedNumber + 0.5f);
+    double roundHalf(double inputNumber) {
+        float roundedNumber = Math.round(inputNumber - 0.5);
+        if ((inputNumber - roundedNumber) >= 0.5) {
+            return (roundedNumber + 0.5);
         }
         return roundedNumber;
     }
 
-    float getOverTimeUsingCalendar(String year, String month, String day, String comeTime, String leaveTime) throws Exception {
+    double getOverTimeUsingCalendar(String year, String month, String day, String comeTime, String leaveTime) throws Exception {
         StringBuilder comeDate = new StringBuilder();
         StringBuilder leaveDate = new StringBuilder();
 
@@ -35,14 +35,14 @@ public class OverTime {
         return getOverTimeUsingCalendar(comeDate.toString(), leaveDate.toString());
     }
 
-    float getOverTimeUsingCalendar(String comeDate, String leaveDate) {
+    double getOverTimeUsingCalendar(String comeDate, String leaveDate) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 //        DateFormat df = new SimpleDateFormat("HH:mm");
         Calendar calComeDate = Calendar.getInstance();
         Calendar calLeaveDate = Calendar.getInstance();
-        final int NINE_HOURS = 9;
-        final long FIFTEEN_MINUTES = 60 * 1000 * 15;
-        float overTimeInHours = 0;
+        final double NINE_HOURS = 9;
+        final double FIFTEEN_MINUTES = 60 * 1000 * 15;
+        double overTimeInHours = 0;
 
         try {
             calComeDate.setTime(df.parse(comeDate));
@@ -56,17 +56,26 @@ public class OverTime {
             float c = calLeaveDate.get(Calendar.HOUR_OF_DAY);
             float d = calLeaveDate.get(Calendar.MINUTE);
 
+            // TODO this code will be remove
             float comeDateInMiliseconds = calComeDate.getTime().getTime();
             float comdateHours = comeDateInMiliseconds / (60 * 1000 * 60) % 60;
             float leaveDarteInMiliseconds = calLeaveDate.getTime().getTime();
             float leavedateHours = leaveDarteInMiliseconds / (60 * 1000 * 60) % 60;
             float diff = leavedateHours - comdateHours;
 
+            double diffHour = calLeaveDate.get(Calendar.HOUR_OF_DAY) - calComeDate.get(Calendar.HOUR_OF_DAY);
+            double diffMinute = calLeaveDate.get(Calendar.MINUTE) - calComeDate.get(Calendar.MINUTE);
+            if (diffMinute == 30) {
+                diffHour += 0.5;
+            } else if (diffMinute == -30) {
+                diffHour -= 0.5;
+            }
+
             // sunday case
             if (calLeaveDate.get(Calendar.DAY_OF_WEEK) != 1) {
-                overTimeInHours = diff - NINE_HOURS;
+                overTimeInHours = diffHour - NINE_HOURS;
             } else if (calLeaveDate.get(Calendar.HOUR_OF_DAY) > 13) {
-                overTimeInHours = diff - 1;
+                overTimeInHours = diffHour - 1;
             }
 
             if (overTimeInHours < 0) return 0;
@@ -117,11 +126,26 @@ public class OverTime {
         float d = calendar.get(Calendar.MINUTE);
 
         // if DAY_OF_WEEK == 1(SUNDAY) and HOUR_OF_DAY = 12 then set minute = 0
-        if ((calendar.get(Calendar.HOUR_OF_DAY) == 12) && (calendar.get(Calendar.DAY_OF_WEEK) == 1)) {
-            calendar.set(calendar.get(Calendar.MINUTE), 0);
+        if (calendar.get(Calendar.DAY_OF_WEEK) == 1) {
+            if (calendar.get(Calendar.HOUR_OF_DAY) == 12) {
+                calendar.set(calendar.get(Calendar.MINUTE), 0);
+            }
+            if (calendar.get(Calendar.MINUTE) < 30) {
+                calendar.set(Calendar.MINUTE, 0);
+            } else {
+                calendar.set(Calendar.MINUTE, 30);
+            }
             return;
         }
+        roundMinuteLeaveTime(calendar);
 
+
+        // TODO remove test code
+        float c1 = calendar.get(Calendar.HOUR_OF_DAY);
+        float d2 = calendar.get(Calendar.MINUTE);
+    }
+
+    private void roundMinuteLeaveTime(Calendar calendar) {
         // if      minute leave < 15 then round to 30 and hour -1
         // else if minute leave < 45 then round to 0
         // else    round to 30
@@ -130,31 +154,25 @@ public class OverTime {
             calendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY) - 1);
         } else if (calendar.get(Calendar.MINUTE) < 45) {
             calendar.set(Calendar.MINUTE, 0);
-
         } else {
             calendar.set(Calendar.MINUTE, 30);
         }
-        // TODO remove test code
-        float c1 = calendar.get(Calendar.HOUR_OF_DAY);
-        float d2= calendar.get(Calendar.MINUTE);
     }
 
-    private Calendar roundHourOfLeaveDate(Calendar calendar) {
+    private void roundHourOfLeaveDate(Calendar calendar) {
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
         // if hour > 20:15
         if ((calendar.get(Calendar.HOUR_OF_DAY) > 20) ||
-                ((calendar.get(Calendar.HOUR_OF_DAY) == 20) && (calendar.get(Calendar.MINUTE) >= 15))){
+                ((calendar.get(Calendar.HOUR_OF_DAY) == 20) && (calendar.get(Calendar.MINUTE) >= 15))) {
 
             calendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY) - 1);
-            return calendar;
+
         } else if (((calendar.get(Calendar.HOUR_OF_DAY) == 20) && (calendar.get(Calendar.MINUTE) < 15)) ||
                 (calendar.get(Calendar.HOUR_OF_DAY) == 19) && (calendar.get(Calendar.MINUTE) >= 15)) {
             calendar.set(Calendar.HOUR_OF_DAY, 19);
             calendar.set(Calendar.MINUTE, 15);
-            return calendar;
-        }
 
-        return calendar;
+        }
     }
 }
