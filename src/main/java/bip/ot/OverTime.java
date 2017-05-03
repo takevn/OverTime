@@ -43,11 +43,11 @@ public class OverTime {
         Calendar calComeDate = Calendar.getInstance();
         Calendar calLeaveDate = Calendar.getInstance();
         final double EIGHT_HOURS = 8;
-        final double FIFTEEN_MINUTES = 60 * 1000 * 15;
         double overTimeInHours = 0;
+        boolean isWeekend = false;
+        double actualWokingTime = 0;
         Map<Integer, Object> resultMap = new HashMap<Integer, Object>() {
         };
-        Boolean isSunday = false;
 
         try {
             calComeDate.setTime(df.parse(comeDate));
@@ -56,19 +56,7 @@ public class OverTime {
             roundComeDate(calComeDate);
             roundLeaveDate(calLeaveDate);
 
-            float a = calComeDate.get(Calendar.HOUR_OF_DAY);
-            float b = calComeDate.get(Calendar.MINUTE);
-            float c = calLeaveDate.get(Calendar.HOUR_OF_DAY);
-            float d = calLeaveDate.get(Calendar.MINUTE);
-
-            // TODO this code will be remove
-            float comeDateInMiliseconds = calComeDate.getTime().getTime();
-            float comdateHours = comeDateInMiliseconds / (60 * 1000 * 60) % 60;
-            float leaveDarteInMiliseconds = calLeaveDate.getTime().getTime();
-            float leavedateHours = leaveDarteInMiliseconds / (60 * 1000 * 60) % 60;
-            float diff = leavedateHours - comdateHours;
-
-            double actualWokingTime = calLeaveDate.get(Calendar.HOUR_OF_DAY) - calComeDate.get(Calendar.HOUR_OF_DAY);
+            actualWokingTime = calLeaveDate.get(Calendar.HOUR_OF_DAY) - calComeDate.get(Calendar.HOUR_OF_DAY);
             double diffMinute = calLeaveDate.get(Calendar.MINUTE) - calComeDate.get(Calendar.MINUTE);
             if (diffMinute == 30) {
                 actualWokingTime += 0.5;
@@ -76,14 +64,12 @@ public class OverTime {
                 actualWokingTime -= 0.5;
             }
 
-            boolean isWeekend = false;
-            if (calLeaveDate.get(Calendar.DAY_OF_WEEK) == 1) isWeekend = true;
-
             // leave after 13:00
             if (calLeaveDate.get(Calendar.HOUR_OF_DAY) > 13) {
                 actualWokingTime -= 1;
             }
 
+            if (calLeaveDate.get(Calendar.DAY_OF_WEEK) == 1) isWeekend = true;
             // NORMAL DAY case
             if (!isWeekend) {
                 overTimeInHours = actualWokingTime - EIGHT_HOURS;
@@ -93,15 +79,13 @@ public class OverTime {
             }
 
             if (overTimeInHours < 0) overTimeInHours = 0;
-
-            resultMap.put(0, isWeekend);
-            resultMap.put(1, roundHalf(actualWokingTime));
-            resultMap.put(2, roundHalf(overTimeInHours));
-
-            return resultMap;
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
+        resultMap.put(0, isWeekend);
+        resultMap.put(1, roundHalf(actualWokingTime));
+        resultMap.put(2, roundHalf(overTimeInHours));
 
         return resultMap;
     }
