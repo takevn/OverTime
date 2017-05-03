@@ -12,14 +12,13 @@
     <section class="content-header">
         <h1>
             Create OverTime
-
         </h1>
     </section>
-    <g:form>
+    <g:form controller="overTime" action="confirm">
 
-        <g:select from="${1..12}" name="selectedMonth" id="selectedMonth" value="${month}"/>
+        <g:select from="${1..12}" name="selectedMonth" id="selectedMonth" value="${month}" />
         <div id="overTimeDetail">
-            <g:render template="/overTime/overtimedetail"/>
+            <g:render template="/overTime/overtimedetail" />
         </div>
 
         <g:hiddenField name="month" value="${month}" id="month" />
@@ -38,10 +37,6 @@
 <asset:javascript src="/clockpicker.js"/>
 <script>
     $( document ).ready(function() {
-
-
-
-
         $('#selectedMonth').on('change',(function() {
             var selectedMonth = $(this).val();
             $.ajax({
