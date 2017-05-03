@@ -79,16 +79,16 @@ public class OverTime {
             boolean isWeekend = false;
             if (calLeaveDate.get(Calendar.DAY_OF_WEEK) == 1) isWeekend = true;
 
+            // leave after 13:00
+            if (calLeaveDate.get(Calendar.HOUR_OF_DAY) > 13) {
+                actualWokingTime -= 1;
+            }
+
             // NORMAL DAY case
             if (!isWeekend) {
-                actualWokingTime -= 1;
                 overTimeInHours = actualWokingTime - EIGHT_HOURS;
                 if (actualWokingTime < 8) actualWokingTime += 0.5;
             } else {// Sunday case
-                // leave after 13:00
-                if (calLeaveDate.get(Calendar.HOUR_OF_DAY) > 13) {
-                    actualWokingTime -= 1;
-                }
                 overTimeInHours = actualWokingTime;
             }
 
