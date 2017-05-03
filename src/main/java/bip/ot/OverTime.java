@@ -4,6 +4,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 public class OverTime {
     double roundHalf(double inputNumber) {
@@ -14,7 +16,7 @@ public class OverTime {
         return roundedNumber;
     }
 
-    double getOverTimeUsingCalendar(String year, String month, String day, String comeTime, String leaveTime) throws Exception {
+    Map<Integer, Object> getOverTimeUsingCalendar(String year, String month, String day, String comeTime, String leaveTime) throws Exception {
         StringBuilder comeDate = new StringBuilder();
         StringBuilder leaveDate = new StringBuilder();
 
@@ -35,14 +37,17 @@ public class OverTime {
         return getOverTimeUsingCalendar(comeDate.toString(), leaveDate.toString());
     }
 
-    double getOverTimeUsingCalendar(String comeDate, String leaveDate) {
+    Map<Integer, Object> getOverTimeUsingCalendar(String comeDate, String leaveDate) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 //        DateFormat df = new SimpleDateFormat("HH:mm");
         Calendar calComeDate = Calendar.getInstance();
         Calendar calLeaveDate = Calendar.getInstance();
-        final double NINE_HOURS = 9;
+        final double EIGHT_HOURS = 8;
         final double FIFTEEN_MINUTES = 60 * 1000 * 15;
         double overTimeInHours = 0;
+        Map<Integer, Object> resultMap = new HashMap<Integer, Object>() {
+        };
+        Boolean isSunday = false;
 
         try {
             calComeDate.setTime(df.parse(comeDate));
@@ -63,32 +68,42 @@ public class OverTime {
             float leavedateHours = leaveDarteInMiliseconds / (60 * 1000 * 60) % 60;
             float diff = leavedateHours - comdateHours;
 
-            double diffHour = calLeaveDate.get(Calendar.HOUR_OF_DAY) - calComeDate.get(Calendar.HOUR_OF_DAY);
+            double actualWokingTime = calLeaveDate.get(Calendar.HOUR_OF_DAY) - calComeDate.get(Calendar.HOUR_OF_DAY);
             double diffMinute = calLeaveDate.get(Calendar.MINUTE) - calComeDate.get(Calendar.MINUTE);
             if (diffMinute == 30) {
-                diffHour += 0.5;
+                actualWokingTime += 0.5;
             } else if (diffMinute == -30) {
-                diffHour -= 0.5;
+                actualWokingTime -= 0.5;
             }
 
+            boolean isWeekend = false;
+            if (calLeaveDate.get(Calendar.DAY_OF_WEEK) == 1) isWeekend = true;
+
             // NORMAL DAY case
-            if (calLeaveDate.get(Calendar.DAY_OF_WEEK) != 1) {
-                overTimeInHours = diffHour - NINE_HOURS;
+            if (!isWeekend) {
+                actualWokingTime -= 1;
+                overTimeInHours = actualWokingTime - EIGHT_HOURS;
+                if (actualWokingTime < 8) actualWokingTime += 0.5;
             } else {// Sunday case
                 // leave after 13:00
                 if (calLeaveDate.get(Calendar.HOUR_OF_DAY) > 13) {
-                    overTimeInHours = diffHour - 1;
+                    actualWokingTime -= 1;
                 }
+                overTimeInHours = actualWokingTime;
             }
 
-            if (overTimeInHours < 0) return 0;
+            if (overTimeInHours < 0) overTimeInHours = 0;
 
-            return roundHalf(overTimeInHours);
+            resultMap.put(0, isWeekend);
+            resultMap.put(1, roundHalf(actualWokingTime));
+            resultMap.put(2, roundHalf(overTimeInHours));
+
+            return resultMap;
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
-        return overTimeInHours;
+        return resultMap;
     }
 
     private void roundComeDate(Calendar calendar) {
