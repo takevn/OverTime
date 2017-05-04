@@ -33,16 +33,8 @@ class OverTimeService {
         calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(day))
         calendar.set(Calendar.MONTH, Integer.parseInt(month)-1)
         calendar.set(Calendar.YEAR, Integer.parseInt(year))
-        int dayofweek = calendar.get(Calendar.DAY_OF_WEEK)
 
-        boolean isWeekend = false
-        if (dayofweek == 1) {
-            isWeekend = true
-        }
-        println " = $dayofweek"
-        println "month = $month"
-        int dayofmonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-        double overTimes =  overTime.getOverTimeUsingCalendar(comeDate.toString(), leaveDate.toString())
-        return [overTimes:overTimes,isWeekend:isWeekend ]
+        def map =  overTime.getOverTimeUsingCalendar(comeDate.toString(), leaveDate.toString())
+        return map
     }
 }

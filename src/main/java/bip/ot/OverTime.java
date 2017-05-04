@@ -16,28 +16,7 @@ public class OverTime {
         return roundedNumber;
     }
 
-    Map<Integer, Object> getOverTimeUsingCalendar(String year, String month, String day, String comeTime, String leaveTime) throws Exception {
-        StringBuilder comeDate = new StringBuilder();
-        StringBuilder leaveDate = new StringBuilder();
-
-        comeDate.append(year);
-        leaveDate.append(year);
-
-        if (month.length() == 1) month = String.format("0%s", month);
-        comeDate.append("-").append(month);
-        leaveDate.append("-").append(month);
-
-        if (day.length() == 1) day = String.format("0%s", day);
-        comeDate.append("-").append(day);
-        leaveDate.append("-").append(day);
-
-        comeDate.append(" ").append(comeTime);
-        leaveDate.append(" ").append(leaveTime);
-
-        return getOverTimeUsingCalendar(comeDate.toString(), leaveDate.toString());
-    }
-
-    Map<Integer, Object> getOverTimeUsingCalendar(String comeDate, String leaveDate) {
+    Map<String, Object> getOverTimeUsingCalendar(String comeDate, String leaveDate) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 //        DateFormat df = new SimpleDateFormat("HH:mm");
         Calendar calComeDate = Calendar.getInstance();
@@ -46,7 +25,7 @@ public class OverTime {
         double overTimeInHours = 0;
         boolean isWeekend = false;
         double actualWokingTime = 0;
-        Map<Integer, Object> resultMap = new HashMap<Integer, Object>() {
+        Map<String, Object> resultMap = new HashMap<String, Object>() {
         };
 
         try {
@@ -69,7 +48,9 @@ public class OverTime {
                 actualWokingTime -= 1;
             }
 
-            if (calLeaveDate.get(Calendar.DAY_OF_WEEK) == 1) isWeekend = true;
+            if (calLeaveDate.get(Calendar.DAY_OF_WEEK) == 1) {
+                isWeekend = true;
+            }
             // NORMAL DAY case
             if (!isWeekend) {
                 overTimeInHours = actualWokingTime - EIGHT_HOURS;
@@ -83,9 +64,9 @@ public class OverTime {
             e.printStackTrace();
         }
 
-        resultMap.put(0, isWeekend);
-        resultMap.put(1, roundHalf(actualWokingTime));
-        resultMap.put(2, roundHalf(overTimeInHours));
+        resultMap.put("isWeekend", isWeekend);
+        resultMap.put("actualWokingTime", roundHalf(actualWokingTime));
+        resultMap.put("overTimeInHours", roundHalf(overTimeInHours));
 
         return resultMap;
     }
@@ -123,6 +104,8 @@ public class OverTime {
         float d0 = calendar.get(Calendar.MINUTE);
         roundHourOfLeaveDate(calendar);
 
+        int aaaa =  calendar.get(Calendar.DAY_OF_WEEK);
+
         // TODO remove test code
         float c = calendar.get(Calendar.HOUR_OF_DAY);
         float d = calendar.get(Calendar.MINUTE);
@@ -130,7 +113,7 @@ public class OverTime {
         // if DAY_OF_WEEK == 1(SUNDAY) and HOUR_OF_DAY = 12 then set minute = 0
         if (calendar.get(Calendar.DAY_OF_WEEK) == 1) {
             if (calendar.get(Calendar.HOUR_OF_DAY) == 12) {
-                calendar.set(calendar.get(Calendar.MINUTE), 0);
+                calendar.set(Calendar.MINUTE, 0);
             }
             if (calendar.get(Calendar.MINUTE) < 30) {
                 calendar.set(Calendar.MINUTE, 0);
@@ -139,8 +122,8 @@ public class OverTime {
             }
             return;
         }
+        int aaaa1 =  calendar.get(Calendar.DAY_OF_WEEK);
         roundMinuteLeaveTime(calendar);
-
 
         // TODO remove test code
         float c1 = calendar.get(Calendar.HOUR_OF_DAY);
