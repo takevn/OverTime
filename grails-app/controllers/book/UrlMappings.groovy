@@ -9,7 +9,7 @@ class UrlMappings {
             }
         }
 
-        "/"(view:"/overTime")
+        "/"(controller:"overTime", action:"index")
         "500"(view:'/error')
         "404"(view:'/notFound')
     }
