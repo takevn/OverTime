@@ -34,7 +34,7 @@
                 </a>
                 <ul class="treeview-menu">
                     <li class="active"><a href="${createLink(controller:'overTime', action:'index')}" /><i class="fa fa-circle-o"></i>Create OverTime</a></li>
-
+                    <li class="active"><a href="${createLink(controller:'overTime', action:'show')}" /><i class="fa fa-circle-o"></i>Show OverTime</a></li>
                 </ul>
             </li>
 

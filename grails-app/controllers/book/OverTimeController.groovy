@@ -26,7 +26,7 @@ class OverTimeController {
             temp.get(Calendar.DAY_OF_WEEK)
             data << [weekday: temp.get(Calendar.DAY_OF_WEEK), day: i, month: temp.get(Calendar.MONTH), year: temp.get(Calendar.YEAR)];
         }
-        render view: "index", model: [data: data, month: calendar.get(Calendar.MONTH) + 1, year: calendar.get(Calendar.YEAR)]
+        render view: "index", model: [data: data, month: calendar.get(Calendar.MONTH) + 1, year: calendar.get(Calendar.YEAR),message:flash.confirmMessage]
     }
 
     @Secured(['ROLE_ADMIN', 'ROLE_USER'])
@@ -63,6 +63,19 @@ class OverTimeController {
     }
 
     @Secured(['ROLE_ADMIN', 'ROLE_USER'])
+    def show() {
+        Calendar calendar = Calendar.getInstance()
+        Calendar temp = Calendar.getInstance();
+
+        Calendar monthStart = GregorianCalendar.getInstance();
+        int dayofmonth = monthStart.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+
+
+        render view: "show", model: [month: calendar.get(Calendar.MONTH) + 1, year: calendar.get(Calendar.YEAR)]
+    }
+
+    @Secured(['ROLE_ADMIN', 'ROLE_USER'])
     def confirm() {
         Calendar calendar = Calendar.getInstance()
         Calendar temp = Calendar.getInstance();
@@ -86,7 +99,7 @@ class OverTimeController {
             eq("year", temp.get(Calendar.YEAR))
             eq("secUser",currentUser)
         }
-        println ">>>>>???>>>"+overtimeMasterList.secUser
+        println ">>>>>???>>>"+overtimeMasterList.size()
         if(overtimeMasterList.size() > 0) {
             overtimeMaster = overtimeMasterList[0]
 
@@ -105,17 +118,14 @@ class OverTimeController {
         } else {
             totalWeekend = 0
         }
-
-        if (totalNormal > 0 || totalWeekend > 0) {
-            overtimeMaster.year = temp.get(Calendar.YEAR)
-            overtimeMaster.month = temp.get(Calendar.MONTH)+1
-            overtimeMaster.totalOvertime = totalNormal
-            overtimeMaster.totalOvertimeWeekend = totalWeekend
-            overtimeMaster.save(flush: true)
-            currentUser.addToOvertimeMaster(overtimeMaster).save(flush: true)
-        }
-
-
+        println totalNormal
+//        if (totalNormal > 0 || totalWeekend > 0) {
+        overtimeMaster.year = temp.get(Calendar.YEAR)
+        overtimeMaster.month = temp.get(Calendar.MONTH)+1
+        overtimeMaster.totalOvertime = totalNormal
+        overtimeMaster.totalOvertimeWeekend = totalWeekend
+        overtimeMaster.save(flush: true)
+        currentUser.addToOvertimeMaster(overtimeMaster).save(flush: true)//        }
 
         for (int i = 1; i <= Integer.valueOf(totalday); i++) {
             temp.set(Calendar.DAY_OF_MONTH, i)
@@ -126,7 +136,8 @@ class OverTimeController {
             weekendOvertime = params.('inputWeekendOvertime_' + i)
             def overTimeHistoryCheck = OvertimeHistory.findWhere(day: i,
                                                             month: temp.get(Calendar.MONTH)+1,
-                                                            year: temp.get(Calendar.YEAR))
+                                                            year: temp.get(Calendar.YEAR),
+                                                            overtimeMaster:overtimeMaster)
             if (startTime && endTime) {
                 if (tempNormalOverTime) {
                     if (Double.valueOf(tempNormalOverTime) > 0) {
@@ -135,7 +146,6 @@ class OverTimeController {
                         } else {
                             overtimeHistoryTemp = overTimeHistoryCheck
                         }
-                        println "dmmmmmmmmmmmmdmmmmmmmmmmmm"
                         overtimeHistoryTemp.userId = Integer.valueOf(currentUser.id.toString())
                         overtimeHistoryTemp.year = temp.get(Calendar.YEAR)
                         overtimeHistoryTemp.month = temp.get(Calendar.MONTH)+1
@@ -173,15 +183,31 @@ class OverTimeController {
             } else {
                 if (overTimeHistoryCheck) {
                     overtimeHistoryTemp = overTimeHistoryCheck
-                    overtimeHistoryTemp.comeTime = 0
-                    overtimeHistoryTemp.leaveTime = 0
-                    overtimeHistoryTemp.overTimeWeekend = 0
-                    overtimeHistoryTemp.overTimeNormal = 0
-                    overtimeHistoryTemp.actualTime = 0
-                    overtimeHistoryTemp.save(flush: true)
+
+                } else {
+                    overtimeHistoryTemp = new OvertimeHistory()
                 }
+                overtimeHistoryTemp.userId = Integer.valueOf(currentUser.id.toString())
+                overtimeHistoryTemp.year = temp.get(Calendar.YEAR)
+                overtimeHistoryTemp.month = temp.get(Calendar.MONTH)+1
+                overtimeHistoryTemp.day = i
+                overtimeHistoryTemp.weekday = temp.get(Calendar.DAY_OF_WEEK)
+                overtimeHistoryTemp.comeTime = 0
+                overtimeHistoryTemp.leaveTime = 0
+                overtimeHistoryTemp.overTimeWeekend = 0
+                overtimeHistoryTemp.overTimeNormal = 0
+                overtimeHistoryTemp.actualTime = 0
+                overtimeHistoryTemp.save(flush: true)
+                overtimeMaster.addToOvertimeHistory(overtimeHistoryTemp).save(flush: true)
             }
         }
-        render view: 'confirm', model: [overtimeMaster:overtimeMaster]
+
+        if (totalNormal == 0 && totalWeekend == 0) {
+            flash.confirmMessage = "deo co gi thi dien an loz a"
+            redirect action: "index"
+        } else {
+            render view: 'confirm', model: [overtimeMaster:overtimeMaster]
+        }
     }
+
 }

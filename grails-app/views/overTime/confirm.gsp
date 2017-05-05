@@ -68,7 +68,7 @@
 </head>
 <body class="margin-200">
     <div class="text-font ">
-        Month: ${month}    Year: ${year}
+        Month: ${overtimeMaster.month}    Year: ${overtimeMaster.year}
         <br>
         <br>
         Division: IT
@@ -76,7 +76,6 @@
         <br>
         Name: <sec:loggedInUserInfo field='username'/>
     </div>
-    ${overtimeMaster.overtimeHistory}
     <table class="">
         <thead>
             <tr >
@@ -90,21 +89,23 @@
             </tr>
         </thead>
         <tbody>
+
             <g:each var="temp" in="${overtimeMaster.overtimeHistory}" status="stt">
-                <g:if test="${temp.comeTime != 0 && temp.leaveTime != 0}">
-                    <tr>
-                        <td class="padding-5">${temp.day}</td>
-                        <td class="padding-5"><g:message code="day.of.week.${temp.weekday}" /></td>
-                        <td class="padding-5">${temp.comeTime}</td>
-                        <td class="padding-5">${temp.leaveTime}</td>
-                        <td class="padding-5">${temp.actualTime}</td>
-                        <td class="padding-5">${temp.overTimeNormal}</td>
-                        <td class="padding-5">${temp.overTimeWeekend}</td>
-                    </tr>
+                <g:if test="${temp.comeTime != '0' || temp.leaveTime != '0'}">
+                    <g:if test="${temp.overTimeNormal != '0' || temp.overTimeWeekend != '0'}">
+                        <tr>
+                            <td class="padding-5">${temp.day}</td>
+                            <td class="padding-5"><g:message code="day.of.week.${temp.weekday}" /></td>
+                            <td class="padding-5">${temp.comeTime}</td>
+                            <td class="padding-5">${temp.leaveTime}</td>
+                            <td class="padding-5">${temp.actualTime}</td>
+                            <td class="padding-5">${temp.overTimeNormal}</td>
+                            <td class="padding-5">${temp.overTimeWeekend}</td>
+                        </tr>
+                    </g:if>
                 </g:if>
             </g:each>
             <tr>
-
                 <th colspan="5">Total</th>
                 <th>${overtimeMaster.totalOvertime}</th>
                 <th>${overtimeMaster.totalOvertimeWeekend}</th>

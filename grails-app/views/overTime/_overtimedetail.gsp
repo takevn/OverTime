@@ -92,6 +92,18 @@
                     }
 
                 });
+            } else if (startTime != '' ||  endTime!=''){
+                $('#actualTime_'+index).html(0);
+                $('#normalOvertime_'+index).html(0);
+                $('#weekendOvertime_'+index).html(0);
+                $('#inputWeekendOvertime_'+index).val(0);
+                $('#inputActualTime_'+index).val(0);
+                $('#totalNormal').html(totalOverTime('normal-overtime'));
+                $('#totalWeekend').html(totalOverTime('weekend-overtime'));
+                var totalNormal = $('#totalNormal').text();
+                var totalWeekend = $('#totalWeekend').text();
+                $('#displayTotalNormal').val(totalNormal);
+                $('#displayTotalWeekend').val(totalWeekend);
             }
 
         });

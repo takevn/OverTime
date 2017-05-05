@@ -14,6 +14,7 @@
             Create OverTime
         </h1>
     </section>
+    ${message}
     <g:form controller="overTime" action="confirm">
 
         <g:select from="${1..12}" name="selectedMonth" id="selectedMonth" value="${month}" />
