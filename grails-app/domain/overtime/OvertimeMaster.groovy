@@ -12,6 +12,12 @@ class OvertimeMaster {
     int day
     double totalOvertime
     double totalOvertimeWeekend
+    String approval
+    String hrcheck
+    String status
     static constraints = {
+        status nullable:true
+        approval nullable:true
+        hrcheck nullable:true
     }
 }

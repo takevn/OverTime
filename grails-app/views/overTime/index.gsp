@@ -15,7 +15,7 @@
         </h1>
     </section>
     ${message}
-    <g:form controller="overTime" action="confirm">
+    <g:form controller="overTime" action="confirm" name="timesheetform" id="timesheetform">
 
         <g:select from="${1..12}" name="selectedMonth" id="selectedMonth" value="${month}" />
         <div id="overTimeDetail">
@@ -40,14 +40,9 @@
     $( document ).ready(function() {
         $('#selectedMonth').on('change',(function() {
             var selectedMonth = $(this).val();
-            $.ajax({
-                    method: "POST",
-                    url: "${createLink(controller:'overTime' ,action: 'reLoadOverTimeSheet')}",
-                    data: { selectedMonth: selectedMonth}
-                })
-                .done(function( msg ) {
-                    $('#overTimeDetail').html(msg);
-                });
+            window.location.href="${createLink(controller:'overTime' ,action:'index' ,params:[selectedMonth:""])}" + selectedMonth;
+            <!--$("#timesheetform").attr("action","index").attr("controller","overTime");-->
+            <!--$("#timesheetform").submit();-->
         }));
     });
 </script>

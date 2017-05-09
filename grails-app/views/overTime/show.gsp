@@ -15,29 +15,30 @@
         </h1>
     </section>
     <div class="col-sm-4">
-        <g:select from="${2006..2020}" name="selectedYear" id="selectedYear" value="${year}" class="form-control"  />
+        <g:select from="${2006..2020}" name="selectedYear" id="selectedYear" value="${year}" class="form-control"/>
     </div>
-    <div class="col-sm-10" class="table-responsive">
-        <table class="table table-bordered">
-            <thead>
-                <tr >
-                    <th class="col-sm-2">Date</th>
-                    <th class="col-sm-2">Year</th>
-                    <th class="col-sm-2">Month</th>
-                    <th class="col-sm-2">Total Overtime</th>
-                    <th class="col-sm-2">Total Overtime Weekend</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-
-                </tr>
-            </tbody>
-
-        </table>
+    <div class="col-sm-10" class="table-responsive" id="showOverTime">
+        <g:render template="/overTime/showOverTime" />
     </div>
-
-
 </div>
+<script>
+    $( document ).ready(function() {
+
+        $('#selectedYear').on('change',(function() {
+            var year = $('#selectedYear').val();
+            console.log('year'+year);
+            $.ajax({
+                method: "POST",
+                url: "${createLink(controller:'overTime' ,action: 'reloadShow')}",
+                data: { selectedYear: year}
+            })
+            .done(function( msg ) {
+                $('#showOverTime').html(msg);
+            });
+        }));
+
+
+    });
+</script>
 </body>
 </html>

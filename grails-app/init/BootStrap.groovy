@@ -20,13 +20,36 @@ class BootStrap {
 //        }
 
         def adminRole = new SecRole(authority: 'ROLE_ADMIN').save()
-        def userRole = new SecRole(authority: 'ROLE_USER').save()
+        def roleEmployee = new SecRole(authority: 'ROLE_EMPLOYEE').save()
+        def roleManager = new SecRole(authority: 'ROLE_MANAGER').save()
+        def roleHr = new SecRole(authority: 'ROLE_HR').save()
 
-        def testUser = new SecUser(username: 'me', password: 'password').save()
-        def testUser2 = new SecUser(username: 'take', password: '12345678').save()
+        def admin = new SecUser(username: 'admin', password: 'admin').save()
+        def employee1 = new SecUser(username: 'employee1', password: 'employee1').save()
+        def employee2 = new SecUser(username: 'employee2', password: 'employee2').save()
 
-        SecUserSecRole.create testUser, adminRole
-        SecUserSecRole.create testUser2, adminRole
+        def manager1 = new SecUser(username: 'manager1', password: 'manager1').save()
+        def manager2 = new SecUser(username: 'manager2', password: 'manager2').save()
+
+        def hr1 = new SecUser(username: 'hr1', password: 'hr1').save()
+        def hr2 = new SecUser(username: 'hr2', password: 'hr2').save()
+
+        SecUserSecRole.create admin, adminRole
+
+        SecUserSecRole.create employee1, roleEmployee
+        SecUserSecRole.create employee2, roleEmployee
+
+        SecUserSecRole.create manager1, roleEmployee
+        SecUserSecRole.create manager1, roleManager
+        SecUserSecRole.create manager2, roleEmployee
+        SecUserSecRole.create manager2, roleManager
+
+        SecUserSecRole.create hr1, roleEmployee
+        SecUserSecRole.create hr1, roleHr
+        SecUserSecRole.create hr2, roleEmployee
+        SecUserSecRole.create hr2, roleHr
+
+
 
         SecUserSecRole.withSession {
             it.flush()

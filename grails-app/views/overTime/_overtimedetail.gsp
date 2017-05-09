@@ -60,7 +60,7 @@
         $( ".get-time" ).blur(function() {
             var index = $(this).attr('id').split('_')[1];
             var day = $('#day_'+index).val();
-            var month = $('#month').val();
+            var month = $('#selectedMonth').val();
             var year = $('#year').val();
             var startTime = $('#startTime_'+index).val();
             var endTime = $('#endTime_'+index).val();
@@ -69,7 +69,7 @@
                 $.ajax({
                     method: "POST",
                     url: "${createLink(controller:'overTime' ,action: 'getOverTime')}",
-                    data: { day: day, month: month, year: year, startTime:startTime, endTime:endTime }
+                    data: { day: day, months: month, year: year, startTime:startTime, endTime:endTime }
                 })
                 .done(function( msg ) {
                     if(msg.weekend == false) {

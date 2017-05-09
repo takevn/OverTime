@@ -105,6 +105,9 @@
     <!-- AdminLTE for demo purposes -->
     <asset:javascript src="/demo.js"/>
     <!--<script src="dist/js/demo.js"></script>-->
+    <asset:javascript src="/sockjs-0.3.4.js" />
+    <asset:javascript src="/stomp.js" />
+
     <![endif]-->
 </head>
 <body class="hold-transition skin-blue sidebar-mini">

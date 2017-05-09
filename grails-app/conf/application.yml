@@ -17,15 +17,15 @@ environments:
     development:
         dataSource:
             dbCreate: update
-            url: jdbc:postgresql://localhost:5432/ot
+            url: jdbc:postgresql://localhost:5432/overtime
     test:
         dataSource:
             dbCreate: update
-            url: jdbc:postgresql://localhost:5432/ot
+            url: jdbc:postgresql://localhost:5432/overtime
     production:
         dataSource:
             dbCreate: none
-            url: jdbc:postgresql://localhost:5432/ot
+            url: jdbc:postgresql://localhost:5432/overtime
             properties:
                 jmxEnabled: true
                 initialSize: 5
