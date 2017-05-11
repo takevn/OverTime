@@ -1,3 +1,5 @@
+<%@ page import="book.NotificationService" %>
+
 <header class="main-header">
     <!-- Logo -->
     <a href="index2.html" class="logo">
@@ -94,45 +96,60 @@
                 </li>
                 <!-- Notifications: style can be found in dropdown.less -->
                 <li class="dropdown notifications-menu">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        <i class="fa fa-bell-o"></i>
-                        <span class="label label-warning" id="notificationNum"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li class="header" id="totalmessage"></li>
-                        <li>
-                            <!-- inner menu: contains the actual data -->
-                            <ul class="menu" id="messageList">
-                                <!--<li>-->
-                                    <!--<a href="#">-->
-                                        <!--<i class="fa fa-users text-aqua"></i> 5 new members joined today-->
-                                    <!--</a>-->
-                                <!--</li>-->
-                                <!--<li>-->
-                                    <!--<a href="#">-->
+
+                    <sec:ifLoggedIn>
+                        <%
+                        def notificationService = grailsApplication.mainContext.getBean("notificationService")
+                        def notificationUnreadList = notificationService.notificationInfo().notificationUnreadList
+                        def totalNotificationUnread = notificationService.notificationInfo().notificationUnread
+                        %>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-bell-o"></i>
+                            <span class="label label-warning" id="notificationNum">${totalNotificationUnread}</span>
+                        </a>
+
+                        <ul class="dropdown-menu">
+                            <li class="header" id="totalmessage"></li>
+                            <li>
+                                <!-- inner menu: contains the actual data -->
+                                <ul class="menu" id="messageList">
+                                    <g:each var="notificationMessage" in="${notificationUnreadList}" status="stt">
+
+
+                                        <li>
+                                            <a href="${createLink(action: 'checkOvertime', controller: 'overTime', params:[overTimeMasterId: notificationMessage.masterId, notificationId: notificationMessage.id])}">
+                                                <i class="fa fa-users text-aqua"></i>${notificationMessage.message}
+                                            </a>
+                                        </li>
+                                        <!--<li>-->
+                                        <!--<a href="#">-->
                                         <!--<i class="fa fa-warning text-yellow"></i> Very long description here that may not fit into the-->
                                         <!--page and may cause design problems-->
-                                    <!--</a>-->
-                                <!--</li>-->
-                                <!--<li>-->
-                                    <!--<a href="#">-->
+                                        <!--</a>-->
+                                        <!--</li>-->
+                                        <!--<li>-->
+                                        <!--<a href="#">-->
                                         <!--<i class="fa fa-users text-red"></i> 5 new members joined-->
-                                    <!--</a>-->
-                                <!--</li>-->
-                                <!--<li>-->
-                                    <!--<a href="#">-->
+                                        <!--</a>-->
+                                        <!--</li>-->
+                                        <!--<li>-->
+                                        <!--<a href="#">-->
                                         <!--<i class="fa fa-shopping-cart text-green"></i> 25 sales made-->
-                                    <!--</a>-->
-                                <!--</li>-->
-                                <!--<li>-->
-                                    <!--<a href="#">-->
+                                        <!--</a>-->
+                                        <!--</li>-->
+                                        <!--<li>-->
+                                        <!--<a href="#">-->
                                         <!--<i class="fa fa-user text-red"></i> You changed your username-->
-                                    <!--</a>-->
-                                <!--</li>-->
-                            </ul>
-                        </li>
-                        <li class="footer"><a href="#">View all</a></li>
-                    </ul>
+                                        <!--</a>-->
+                                        <!--</li>-->
+
+                                    </g:each>
+                                </ul>
+                            </li>
+                            <li class="footer"><a href="#">View all</a></li>
+                        </ul>
+
+
                 </li>
                 <!-- Tasks: style can be found in dropdown.less -->
                 <li class="dropdown tasks-menu">
@@ -212,7 +229,7 @@
                 <li class="dropdown user user-menu">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <img src="${assetPath(src:'user2-160x160.jpg')}" class="user-image" alt="User Image">
-                        <span class="hidden-xs">Alexander Pierce</span>
+                        <span class="hidden-xs"><sec:loggedInUserInfo field='username'/></span>
                     </a>
                     <ul class="dropdown-menu">
                         <!-- User image -->
@@ -255,6 +272,23 @@
                     <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
                 </li>
             </ul>
+            </sec:ifLoggedIn>
         </div>
     </nav>
 </header>
+<script>
+    $( document ).ready(function() {
+            var socket = new SockJS("${createLink(uri: '/stomp')}");
+				var client = Stomp.over(socket);
+
+				client.connect({}, function() {
+					client.subscribe("/user/queue/messagetouser", function(message) {
+						var data = JSON.parse(message.body);
+                        $('#notificationNum').text(data.notificationUnreadMessage);
+                        $('#messageList').append("<li><a href='checkOvertime?overTimeMasterId="+data.overTimeMasterId +"&notificationId="+data.notificationId+"'><i class='fa fa-users text-aqua'>"+data.message+"</i><a></li>");
+					});
+				});
+
+    });
+</script>
+

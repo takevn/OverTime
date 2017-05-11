@@ -231,8 +231,10 @@ class OverTimeController {
 
         def overTimeMasterList = OvertimeMaster.findAllWhere(year:selectedYear,
                 secUser: currentUser ).sort(){it.id}
+        def roleManager = SecRole.findWhere(authority:'ROLE_MANAGER')
+        def managerList = SecUserSecRole.findAllWhere(secRole:roleManager).secUser
 
-        render(template: '/overTime/showOverTime', model: [overTimeMaster: overTimeMasterList])
+        render(template: '/overTime/showOverTime', model: [overTimeMaster: overTimeMasterList, managerList:managerList])
     }
 
     @Secured(['ROLE_ADMIN', 'ROLE_EMPLOYEE', 'ROLE_MANAGER', 'ROLE_HR'])
@@ -256,7 +258,6 @@ class OverTimeController {
 
     @Secured(['ROLE_ADMIN', 'ROLE_EMPLOYEE', 'ROLE_MANAGER', 'ROLE_HR'])
     def update() {
-        println "params ="+params
         def monthCurrent = Integer.valueOf(params.month)
         def yearCurrent = Integer.valueOf(params.year)
         def currentUser = springSecurityService.currentUser
@@ -306,20 +307,49 @@ class OverTimeController {
         notification.message = "you have new overtime request id: "+overTimeMaster.id
         notification.targetUser = SecUser.get(params.selectedManagerId).username
         notification.status = "unread"
+        notification.masterId = params.selectedOverTimeMasterId
         notification.save(flush: true)
 
         def notificationUnreadMessage = Notification.createCriteria().list() {
             eq("status", "unread")
             eq("targetUser", SecUser.get(params.selectedManagerId).username)
         }
-        def data = [message:"you have new overtime request id: "+overTimeMaster.id, notificationUnreadMessage: notificationUnreadMessage.size()]
+
+        def data = [message:"you have new overtime request id: "+overTimeMaster.id, notificationUnreadMessage: notificationUnreadMessage.size(),notificationId:notification.id, overTimeMasterId: overTimeMaster.id]
         brokerMessagingTemplate.convertAndSendToUser(SecUser.get(params.selectedManagerId).username,"/queue/messagetouser",data)
         redirect action: 'show'
     }
+
+    @Secured(['ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_HR'])
+    def checkOvertime() {
+
+        def overtimeMaster = OvertimeMaster.get(params.overTimeMasterId)
+        def notification = Notification.get(params.notificationId)
+        notification.status = 'read'
+        notification.save(flush: true)
+        render view: 'checkOverTime', model: [overTimeMaster: overtimeMaster, notification: notification]
+    }
+
+
+    @Secured(['ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_HR'])
+    def acceptOverTime() {
+        def overtimeMaster = OvertimeMaster.get(params.overTimeMasterId)
+        overtimeMaster.status = '300'
+        overtimeMaster.save(flush: true)
+
+        redirect action: 'show'
+    }
+
     @Secured(['ROLE_ADMIN', 'ROLE_EMPLOYEE', 'ROLE_MANAGER', 'ROLE_HR'])
     @MessageMapping("/messagetouser")
     @SendTo("/queue/messagetouser")
-    protected String hello(def data) {
+    protected String sendManager(def data) {
+        return "${data}"
+    }
+
+    @MessageMapping("/messagetoHR")
+    @SendTo("/topic/messagetoHR")
+    protected String sendToHR(def data) {
         return "${data}"
     }
 

@@ -42,28 +42,12 @@
 </g:form>
 <script>
     $( document ).ready(function() {
-            var socket = new SockJS("${createLink(uri: '/stomp')}");
-				var client = Stomp.over(socket);
-
-				client.connect({}, function() {
-					client.subscribe("/user/queue/messagetouser", function(message) {
-
-						var data = JSON.parse(message.body);
-						console.log(data.notificationUnreadMessage);
-                        $('#notificationNum').text(data.notificationUnreadMessage);
-                        $('#messageList').append("<li><a>"+data.message+"<a></li>");
-					});
-				});
-
-
         $('.submit-btn').click(function() {
             var index = $(this).attr('id').split('_')[1];
             $('#selectedManagerId').val($('#managerList_'+index).val());
             $('#selectedOverTimeMasterId').val(index);
             $('#sendToManager').submit();
-
         });
-
     });
 </script>
 </body>
