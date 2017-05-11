@@ -75,7 +75,7 @@
             <input type="hidden" id="overTimeMasterId" name="overTimeMasterId" value="${overTimeMaster.id}">
             <input type="hidden" id="notificationId" name="notificationId" value="${notification.id}">
             <g:actionSubmit value="Accept" action="acceptOverTime" />
-            <g:actionSubmit value="reject" action="rejectOverTime" />
+            <g:actionSubmit value="reject" action="managerReject" />
 
         </div>
     </g:form>

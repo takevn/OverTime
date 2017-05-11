@@ -12,6 +12,7 @@
     <section class="content-header">
         <h1>
             Show list
+>>>>>>>>>>>>>>>>>>>${request.contextPath}<<<<<<<<<<<<<<<<<<<<<
         </h1>
     </section>
     <div class="col-sm-4">
@@ -21,6 +22,7 @@
         <g:render template="/overTime/showOverTime" />
     </div>
 </div>
+
 <script>
     $( document ).ready(function() {
 

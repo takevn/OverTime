@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+
+<%@ page import="book.NotificationService" %>
 <html xmlns:asset="http://www.w3.org/1999/XSL/Transform" xmlns:g="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8">
@@ -113,6 +115,11 @@
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
 
+
+    <%
+        def notificationService = grailsApplication.mainContext.getBean("notificationService")
+    %>
+    <g:set var="notificationService" value="${notificationService}" />
     <g:render template="/layouts/header"/>
     <!-- Left side column. contains the logo and sidebar -->
 

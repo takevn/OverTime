@@ -4,6 +4,7 @@ import bip.ot.OverTime
 import grails.transaction.Transactional
 import org.example.SecUser
 import overtime.Notification
+import overtime.OvertimeMaster
 
 @Transactional
 class NotificationService {
@@ -24,4 +25,12 @@ class NotificationService {
         }
         return [notificationUnread: notificationUnread.size(), notificationUnreadList: notificationUnreadList]
     }
+
+    def getUnassignTaskOfHr() {
+        def overTimeMasterList = OvertimeMaster.createCriteria().list() {
+            eq("status", "300")
+        }
+        return overTimeMasterList.size()
+    }
+
 }

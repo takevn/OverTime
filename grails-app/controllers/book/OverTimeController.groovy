@@ -336,6 +336,48 @@ class OverTimeController {
         def overtimeMaster = OvertimeMaster.get(params.overTimeMasterId)
         overtimeMaster.status = '300'
         overtimeMaster.save(flush: true)
+        brokerMessagingTemplate.convertAndSend("/topic/messagetoHR","You have new message from manager, click to unasing task for detail")
+        redirect action: 'show'
+    }
+
+    @Secured(['ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_HR'])
+    def managerReject() {
+        def overtimeMaster = OvertimeMaster.get(params.overTimeMasterId)
+        overtimeMaster.status = '100'
+        overtimeMaster.save(flush: true)
+
+        def notification = new Notification()
+        notification.message = "you have to check Overtime sheet again "+overtimeMaster.id
+        notification.targetUser = overtimeMaster.secUser.username
+        notification.status = "unread"
+        notification.masterId = params.selectedOverTimeMasterId
+        notification.masterId = params.overTimeMasterId
+        notification.save(flush: true)
+
+        def notificationUnreadMessage = Notification.createCriteria().list() {
+            eq("status", "unread")
+            eq("targetUser", overtimeMaster.secUser.username)
+        }
+        def data = [message:"you have to check Overtime sheet again "+overtimeMaster.id, notificationUnreadMessage: notificationUnreadMessage.size(),notificationId:notification.id, overTimeMasterId: overtimeMaster.id]
+        brokerMessagingTemplate.convertAndSendToUser(notification.targetUser,"/queue/messagetoemployee",data)
+        redirect action: 'show'
+    }
+
+    @Secured(['ROLE_ADMIN', 'ROLE_EMPLOYEE'])
+    def employeeCheckAgain() {
+        def overtimeMaster = OvertimeMaster.get(params.overTimeMasterId)
+        def notification = Notification.get(params.notificationId)
+        notification.status = 'read'
+        notification.save(flush: true)
+        redirect action: 'edit', model: [overTimeMaster: overtimeMaster], params: [month: overtimeMaster.month, year: overtimeMaster.year]
+
+    }
+
+    @Secured(['ROLE_ADMIN', 'ROLE_HR'])
+    def hrCheckNoti() {
+        def overTimeMasterList = OvertimeMaster.createCriteria().list() {
+            eq("status", "300")
+        }
 
         redirect action: 'show'
     }
@@ -350,6 +392,13 @@ class OverTimeController {
     @MessageMapping("/messagetoHR")
     @SendTo("/topic/messagetoHR")
     protected String sendToHR(def data) {
+        return "${data}"
+    }
+
+    @Secured(['ROLE_ADMIN', 'ROLE_EMPLOYEE', 'ROLE_MANAGER', 'ROLE_HR'])
+    @MessageMapping("/messagetoemployee")
+    @SendTo("/queue/messagetoemployee")
+    protected String sendToEmployee(def data) {
         return "${data}"
     }
 

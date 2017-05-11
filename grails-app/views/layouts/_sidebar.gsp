@@ -7,7 +7,7 @@
                 <img src="${assetPath(src:'user2-160x160.jpg')}" class="img-circle" alt="User Image">
             </div>
             <div class="pull-left info">
-                <p>Alexander Pierce</p>
+                <p><sec:loggedInUserInfo field='username'/></p>
                 <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
             </div>
         </div>
@@ -35,6 +35,14 @@
                 <ul class="treeview-menu">
                     <li class="active"><a href="${createLink(controller:'overTime', action:'index')}" /><i class="fa fa-circle-o"></i>Create OverTime</a></li>
                     <li class="active"><a href="${createLink(controller:'overTime', action:'show')}" /><i class="fa fa-circle-o"></i>Show OverTime</a></li>
+                    <sec:ifAllGranted roles='ROLE_HR'>
+                        <li class="active">
+                            <%
+                                def numOfUnassignTask = notificationService.getUnassignTaskOfHr()
+                            %>
+                            <a href="${createLink(controller:'overTime', action:'show')}" /><i class="fa fa-circle-o"></i>UnAssignTask    <span class="label label-warning" id="notificationNumHr">${numOfUnassignTask?:0}</span></a>
+                        </li>
+                    </sec:ifAllGranted>
                 </ul>
             </li>
 
@@ -42,3 +50,21 @@
     </section>
     <!-- /.sidebar -->
 </aside>
+
+<script>
+    $( document ).ready(function() {
+            var socket = new SockJS("${createLink(uri: '/stomp')}");
+            var client = Stomp.over(socket);
+
+
+            client.connect({}, function() {
+                client.subscribe("/topic/messagetoHR", function(message) {
+                    var num = parseInt($('#notificationNumHr').html());
+                    alert(message.body);
+                    $('#notificationNumHr').html(num+1);
+                });
+            });
+
+
+    });
+</script>

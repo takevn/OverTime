@@ -21,7 +21,7 @@
         <div id="overTimeDetail">
             <g:render template="/overTime/overtimedetail" />
         </div>
-
+        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:${request.contextPath}bbbbbb
         <g:hiddenField name="month" value="${month}" id="month" />
         <g:hiddenField name="year" value="${year}" id="year" />
     </g:form>
