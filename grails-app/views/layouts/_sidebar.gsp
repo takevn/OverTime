@@ -43,6 +43,11 @@
                             <a href="${createLink(controller:'overTime', action:'show')}" /><i class="fa fa-circle-o"></i>UnAssignTask    <span class="label label-warning" id="notificationNumHr">${numOfUnassignTask?:0}</span></a>
                         </li>
                     </sec:ifAllGranted>
+                    <li class="active"><a href="${createLink(controller:'humanManage', action:'index')}" /><i class="fa fa-circle-o"></i>Personal Infomation</a></li>
+                    <sec:ifAnyGranted roles='ROLE_HR,ROLE_MANAGER'>
+                        <li class="active"><a href="${createLink(controller:'humanManage', action:'employeeManage')}" /><i class="fa fa-circle-o"></i>Employee Infomation</a></li>
+                    </sec:ifAnyGranted>
+
                 </ul>
             </li>
 

@@ -33,6 +33,8 @@
                     <th>Day</th>
                     <th>StartTime</th>
                     <th>EndTime</th>
+                    <th>Hours PaidLeave</th>
+                    <th>Hours UnPaidLeave</th>
                     <th>Actual Times</th>
                     <th>Normal OverTimes</th>
                     <th>Weekend OverTimes</th>
@@ -46,12 +48,20 @@
                             <td id="">${temp.day}</td>
                             <!--<td><g:textField name="startTime" id="startTime_${stt+1}" class="get-time"/></td>-->
                             <td>
-                                <input type="text" class="col-sm-4 get-time" name="startTime_${temp.id}" id="startTime_${temp.id}" value="${temp.comeTime}" disabled="disabled"/>
+                                <input type="text" class="col-sm-5 get-time" name="startTime_${temp.id}" id="startTime_${temp.id}" value="${temp.comeTime}" readonly="readonly" />
                             </td>
 
                             <!--<td><g:textField name="endTime" id="endTime_${stt+1}" class="get-time" /></td>-->
                             <td>
-                                <input type="text" class="col-sm-4 get-time" name="endTime_${temp.id}" id="endTime_${temp.id}" value="${temp.leaveTime}" disabled="disabled"/>
+                                <input type="text" class="col-sm-5 get-time" name="endTime_${temp.id}" id="endTime_${temp.id}" value="${temp.leaveTime}" readonly="readonly" />
+                            </td>
+                            <td>
+                                <input type="text" class="col-sm-5 get-paid-leave" name="hoursPaidLeave_${temp.id}" id="hoursPaidLeave_${temp.id}" readonly="readonly" value="${temp.hoursPaidLeave}" />
+
+                            </td>
+                            <td>
+                                <input type="text" class="col-sm-5 get-unpaid-leave" name="hoursUnPaidLeave_${temp.id}" id="hoursUnPaidLeave_${temp.id}" readonly="readonly" value="${temp.hoursUnPaidLeave}" />
+
                             </td>
                             <td id="actualTime_${temp.id}">${temp.actualTime}</td>
                             <td id="normalOvertime_${temp.id}" class="normal-overtime">${temp.overTimeNormal}</td>
@@ -65,6 +75,8 @@
                         <td></td>
                         <td></td>
                         <td></td>
+                        <td><label id="totalPaidLeave"></label></td>
+                        <td><label id="totalUnPaidLeave"></label></td>
                         <td></td>
                         <td><label id="totalNormal">${overTimeMaster.totalOvertime}</label></td>
                         <td><label id="totalWeekend">${overTimeMaster.totalOvertimeWeekend}</label></td>

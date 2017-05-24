@@ -1,19 +1,29 @@
 package overtime
 
+import org.example.SecUser
+
 class Employee {
 
     String firstName
     String lastName
     String graduateSchool
     String filePathProfilePicture
-    Date birthDate
-
-
+    String birthDate
+    String totalPaidLeave
+    String remainPaidLeave
+    SecUser secUser
 
     static constraints = {
-        firstName size: 5..15, blank: false
-        lastName size: 5..15, blank: false
-        graduateSchool size: 5..15
-        birthDate max: new Date()
+        firstName blank: true
+        lastName blank: true
+        graduateSchool blank: true
+        birthDate nullable: true
+        totalPaidLeave nullable: true
+        remainPaidLeave nullable: true
+        filePathProfilePicture nullable: true
+        firstName nullable: true
+        lastName nullable: true
+        graduateSchool nullable: true
+        secUser nullable: true
     }
 }

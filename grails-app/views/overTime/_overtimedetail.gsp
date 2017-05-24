@@ -6,6 +6,8 @@
         <th>Day</th>
         <th>StartTime</th>
         <th>EndTime</th>
+        <th>Hours PaidLeave</th>
+        <th>Hours UnPaidLeave</th>
         <th>Actual Times</th>
         <th>Normal OverTimes</th>
         <th>Weekend OverTimes</th>
@@ -20,12 +22,30 @@
             <td>${temp.day}</td>
             <!--<td><g:textField name="startTime" id="startTime_${stt+1}" class="get-time"/></td>-->
             <td class="clockpicker " data-placement="left" data-align="top" data-autoclose="true" >
-                <input type="text" class="col-sm-4 get-time" name="startTime_${stt+1}" id="startTime_${stt+1}" />
+                <input type="text" class="col-sm-5 get-time" name="startTime_${stt+1}" id="startTime_${stt+1}" />
             </td>
 
             <!--<td><g:textField name="endTime" id="endTime_${stt+1}" class="get-time" /></td>-->
             <td class=" clockpicker " data-placement="left" data-align="top" data-autoclose="true" >
-                <input type="text" class="col-sm-4 get-time" name="endTime_${stt+1}" id="endTime_${stt+1}" />
+                <input type="text" class="col-sm-5 get-time" name="endTime_${stt+1}" id="endTime_${stt+1}" />
+            </td>
+            <td>
+                <g:if test="${temp.weekday == 1 || temp.weekday == 7}">
+                    <input type="text" class="col-sm-5 get-paid-leave" name="hoursPaidLeave_${stt+1}" id="hoursPaidLeave_${stt+1}" disabled="disabled"/>
+                </g:if>
+                <g:else>
+                    <input type="text" class="col-sm-5 get-paid-leave" name="hoursPaidLeave_${stt+1}" id="hoursPaidLeave_${stt+1}" />
+                </g:else>
+
+            </td>
+            <td>
+                <g:if test="${temp.weekday == 1 || temp.weekday == 7}">
+                    <input type="text" class="col-sm-5 get-unpaid-leave" name="hoursUnPaidLeave_${stt+1}" id="hoursUnPaidLeave_${stt+1}" disabled="disabled"/>
+                </g:if>
+                <g:else>
+                    <input type="text" class="col-sm-5 get-unpaid-leave" name="hoursUnPaidLeave_${stt+1}" id="hoursUnPaidLeave_${stt+1}" />
+                </g:else>
+
             </td>
             <td name ="actualTime_${stt+1}" id="actualTime_${stt+1}"></td>
             <td name="normalOvertime_${stt+1}"id="normalOvertime_${stt+1}" class="normal-overtime"></td>
@@ -43,11 +63,15 @@
         <td></td>
         <td></td>
         <td></td>
+        <td><label id="totalPaidLeave"></label></td>
+        <td><label id="totalUnPaidLeave"></label></td>
         <td></td>
         <td><label id="totalNormal"></label></td>
         <td><label id="totalWeekend"></label></td>
         <input type="hidden" id="displayTotalNormal" name="displayTotalNormal">
         <input type="hidden" id="displayTotalWeekend" name="displayTotalWeekend">
+        <input type="hidden" id="displayPaidLeave" name="displayPaidLeave">
+        <input type="hidden" id="displayUnPaidLeave" name="displayUnPaidLeave">
     </tr>
 
 
@@ -110,9 +134,36 @@
         function totalOverTime($class) {
         var total = 0;
             $("."+$class).each(function(index,item) {
+                console.log($(this).text());
                 if($( this ).text()!= '') {
                     total = total + parseFloat($(this).text());
                     console.log('total'+total);
+                }
+            });
+            return total;
+        }
+
+        $( ".get-paid-leave" ).change(function() {
+            var totalPaid;
+            totalPaid = totalPaidLeave('get-paid-leave');
+            $('#totalPaidLeave').text(totalPaid);
+            $('#displayPaidLeave').val(totalPaid);
+
+        });
+
+        $( ".get-unpaid-leave" ).change(function() {
+            var totalUnPaid;
+            totalUnPaid = totalPaidLeave('get-unpaid-leave');
+            $('#totalUnPaidLeave').text(totalUnPaid);
+            $('#displayUnPaidLeave').val(totalUnPaid);
+        });
+
+        function totalPaidLeave($class) {
+        var total = 0;
+            $("."+$class).each(function(index,item) {
+                console.log($(this).val());
+                if($( this ).val()!= '') {
+                    total = total + parseFloat($(this).val());
                 }
             });
             return total;

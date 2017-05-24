@@ -12,6 +12,8 @@ class OvertimeMaster {
     int day
     double totalOvertime
     double totalOvertimeWeekend
+    double totalPaidLeave
+    double totalUnPaidLeave
     String approval
     String hrcheck
     String status

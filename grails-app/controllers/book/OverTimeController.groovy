@@ -77,6 +77,8 @@ class OverTimeController {
         def actualTime
         def weekendOvertime
         def overtimeMaster
+        def hoursPaidleave
+        def hoursUnPaidleave
         def overtimeMasterList = OvertimeMaster.createCriteria().list(){
             eq("month", selectedMonth)
             eq("year", temp.get(Calendar.YEAR))
@@ -91,6 +93,8 @@ class OverTimeController {
         }
         double totalNormal
         double totalWeekend
+        double totalPaidLeave
+        double totalUnPaidLeave
         if (params.displayTotalNormal != '') {
             totalNormal = Double.valueOf(params.displayTotalNormal)
         } else {
@@ -101,14 +105,28 @@ class OverTimeController {
         } else {
             totalWeekend = 0
         }
+        if (params.displayPaidLeave != '') {
+            totalPaidLeave = Double.valueOf(params.displayPaidLeave)
+        } else {
+            totalPaidLeave = 0
+        }
+        if (params.displayUnPaidLeave != '') {
+            totalUnPaidLeave = Double.valueOf(params.displayUnPaidLeave)
+        } else {
+            totalUnPaidLeave = 0
+        }
+
 //        if (totalNormal > 0 || totalWeekend > 0) {
         overtimeMaster.year = temp.get(Calendar.YEAR)
         overtimeMaster.month = selectedMonth
         overtimeMaster.totalOvertime = totalNormal
         overtimeMaster.totalOvertimeWeekend = totalWeekend
         overtimeMaster.status = '100'
+        overtimeMaster.totalPaidLeave = totalPaidLeave
+        overtimeMaster.totalUnPaidLeave = totalUnPaidLeave
         overtimeMaster.save(flush: true)
         currentUser.addToOvertimeMaster(overtimeMaster).save(flush: true)//        }
+        println "totalday" + totalday
 
         for (int i = 1; i <= Integer.valueOf(totalday); i++) {
             temp.set(Calendar.DAY_OF_MONTH, i)
@@ -117,54 +135,50 @@ class OverTimeController {
             endTime = params.('endTime_' + i)
             actualTime = params.('inputActualTime_' + i)
             weekendOvertime = params.('inputWeekendOvertime_' + i)
+            hoursPaidleave = params.('hoursPaidLeave_'+i)
+            hoursUnPaidleave = params.('hoursUnPaidLeave_'+i)
             def overTimeHistoryCheck = OvertimeHistory.findWhere(day: i,
                                                             month: selectedMonth,
                                                             year: temp.get(Calendar.YEAR),
                                                             overtimeMaster:overtimeMaster)
             if (startTime && endTime) {
+                if (!overTimeHistoryCheck) {
+                    overtimeHistoryTemp = new OvertimeHistory()
+                } else {
+                    overtimeHistoryTemp = overTimeHistoryCheck
+                }
+                overtimeHistoryTemp.userId = Integer.valueOf(currentUser.id.toString())
+                overtimeHistoryTemp.year = temp.get(Calendar.YEAR)
+                overtimeHistoryTemp.month = selectedMonth
+                overtimeHistoryTemp.day = i
+                overtimeHistoryTemp.weekday = temp.get(Calendar.DAY_OF_WEEK)
+                overtimeHistoryTemp.actualTime = Double.valueOf(actualTime)
+                overtimeHistoryTemp.comeTime = startTime
+                overtimeHistoryTemp.leaveTime = endTime
                 if (tempNormalOverTime) {
                     if (Double.valueOf(tempNormalOverTime) > 0) {
-                        if (!overTimeHistoryCheck) {
-                            overtimeHistoryTemp = new OvertimeHistory()
-                        } else {
-                            overtimeHistoryTemp = overTimeHistoryCheck
-                        }
-                        overtimeHistoryTemp.userId = Integer.valueOf(currentUser.id.toString())
-                        overtimeHistoryTemp.year = temp.get(Calendar.YEAR)
-                        overtimeHistoryTemp.month = selectedMonth
-                        overtimeHistoryTemp.day = i
-                        overtimeHistoryTemp.weekday = temp.get(Calendar.DAY_OF_WEEK)
-                        overtimeHistoryTemp.actualTime = Double.valueOf(actualTime)
-                        overtimeHistoryTemp.comeTime = startTime
-                        overtimeHistoryTemp.leaveTime = endTime
                         overtimeHistoryTemp.overTimeNormal = tempNormalOverTime
                         overtimeHistoryTemp.overTimeWeekend = 0
-                        overtimeHistoryTemp.save(flush: true)
-                        overtimeMaster.addToOvertimeHistory(overtimeHistoryTemp).save(flush: true)
+                    }  else {
+                        overtimeHistoryTemp.overTimeWeekend = 0
+                        overtimeHistoryTemp.overTimeNormal = 0
                     }
                 }
                 if (weekendOvertime) {
                     if (Double.valueOf(weekendOvertime) > 0) {
-                        if (!overTimeHistoryCheck) {
-                            overtimeHistoryTemp = new OvertimeHistory()
-                        } else {
-                            overtimeHistoryTemp = overTimeHistoryCheck
-                        }
-                        overtimeHistoryTemp.userId = Integer.valueOf(currentUser.id.toString())
-                        overtimeHistoryTemp.year = temp.get(Calendar.YEAR)
-                        overtimeHistoryTemp.month = selectedMonth
-                        overtimeHistoryTemp.day = i
-                        overtimeHistoryTemp.weekday = temp.get(Calendar.DAY_OF_WEEK)
-                        overtimeHistoryTemp.actualTime = Double.valueOf(actualTime)
-                        overtimeHistoryTemp.comeTime = startTime
-                        overtimeHistoryTemp.leaveTime = endTime
-                        overtimeHistoryTemp.overTimeWeekend = weekendOvertime
                         overtimeHistoryTemp.overTimeNormal = 0
-                        overtimeHistoryTemp.save(flush: true)
-                        overtimeMaster.addToOvertimeHistory(overtimeHistoryTemp).save(flush: true)
-
+                        overtimeHistoryTemp.overTimeWeekend = weekendOvertime
+                    }  else {
+                        overtimeHistoryTemp.overTimeWeekend = 0
+                        overtimeHistoryTemp.overTimeNormal = 0
                     }
                 }
+
+                overtimeHistoryTemp.hoursPaidLeave = hoursPaidleave
+                overtimeHistoryTemp.hoursUnPaidLeave = hoursUnPaidleave
+                overtimeHistoryTemp.save(flush: true)
+                overtimeMaster.addToOvertimeHistory(overtimeHistoryTemp).save(flush: true)
+
             } else {
                 if (overTimeHistoryCheck) {
                     overtimeHistoryTemp = overTimeHistoryCheck
@@ -177,22 +191,32 @@ class OverTimeController {
                 overtimeHistoryTemp.month = selectedMonth
                 overtimeHistoryTemp.day = i
                 overtimeHistoryTemp.weekday = temp.get(Calendar.DAY_OF_WEEK)
-                overtimeHistoryTemp.comeTime = 0
-                overtimeHistoryTemp.leaveTime = 0
+                if (overtimeHistoryTemp.weekday == 1 || overtimeHistoryTemp.weekday == 7) {
+                    overtimeHistoryTemp.comeTime = 0
+                    overtimeHistoryTemp.leaveTime = 0
+                    overtimeHistoryTemp.actualTime = 0
+                } else {
+                    if (!hoursPaidleave || !hoursUnPaidleave) {
+                        overtimeHistoryTemp.comeTime = '8:00'
+                        overtimeHistoryTemp.leaveTime = '17:00'
+                        overtimeHistoryTemp.actualTime = 8
+                    } else {
+                        overtimeHistoryTemp.comeTime = 0
+                        overtimeHistoryTemp.leaveTime = 0
+                        overtimeHistoryTemp.actualTime = 0
+                    }
+                }
+
                 overtimeHistoryTemp.overTimeWeekend = 0
                 overtimeHistoryTemp.overTimeNormal = 0
-                overtimeHistoryTemp.actualTime = 0
+                overtimeHistoryTemp.hoursPaidLeave = hoursPaidleave
+                overtimeHistoryTemp.hoursUnPaidLeave = hoursUnPaidleave
                 overtimeHistoryTemp.save(flush: true)
                 overtimeMaster.addToOvertimeHistory(overtimeHistoryTemp).save(flush: true)
             }
         }
+        render view: 'confirm', model: [overtimeMaster:overtimeMaster]
 
-        if (totalNormal == 0 && totalWeekend == 0) {
-            flash.confirmMessage = "deo co gi thi dien an loz a"
-            redirect action: "index"
-        } else {
-            render view: 'confirm', model: [overtimeMaster:overtimeMaster]
-        }
     }
 
     @Secured(['ROLE_ADMIN', 'ROLE_EMPLOYEE', 'ROLE_MANAGER', 'ROLE_HR'])
@@ -219,7 +243,7 @@ class OverTimeController {
     def reloadShow() {
         def currentUser = springSecurityService.currentUser
         Calendar calendar = Calendar.getInstance()
-        Calendar temp = Calendar.getInstance();
+        Calendar temp = Calendar.getInstance()
         int selectedYear
         if (params.selectedYear == null) {
             selectedYear = calendar.get(Calendar.YEAR)
@@ -263,34 +287,44 @@ class OverTimeController {
         def currentUser = springSecurityService.currentUser
         double totalNormal = Double.valueOf(params.displayTotalNormal)
         double totalWeekend = Double.valueOf(params.displayTotalWeekend)
+        double totalPaidLeave = Double.valueOf(params.displayPaidLeave)
+        double totalUnPaidLeave = Double.valueOf(params.displayUnPaidLeave)
         def overtimeMaster = OvertimeMaster.get(params.overTimeMasterId)
         overtimeMaster.totalOvertime = totalNormal
         overtimeMaster.totalOvertimeWeekend = totalWeekend
+        overtimeMaster.totalPaidLeave = totalPaidLeave
+        overtimeMaster.totalUnPaidLeave = totalUnPaidLeave
         overtimeMaster.save(flush: true)
 
         for(overtimeHistory in overtimeMaster.overtimeHistory){
             def idx = overtimeHistory.id
-
+            if (params.('startTime_'+idx) != '' || params.('endTime_'+idx) != '') {
                 overtimeHistory.comeTime = params.('startTime_'+idx)
                 overtimeHistory.leaveTime = params.('endTime_'+idx)
-                if (params.('inputNormalOvertime_'+idx) != '') {
-                    overtimeHistory.overTimeNormal = params.('inputNormalOvertime_'+idx)
-                } else {
-                    overtimeHistory.overTimeNormal = '0'
-                }
+            } else {
+                overtimeHistory.comeTime = 0
+                overtimeHistory.leaveTime = 0
+            }
 
-                if (params.('inputWeekendOvertime_'+idx) != '') {
-                    overtimeHistory.overTimeWeekend = params.('inputWeekendOvertime_'+idx)
-                } else {
-                    overtimeHistory.overTimeWeekend = '0'
-                }
+            overtimeHistory.hoursPaidLeave = params.('hoursPaidLeave_'+idx)
+            overtimeHistory.hoursUnPaidLeave = params.('hoursUnPaidLeave_'+idx)
+            if (params.('inputNormalOvertime_'+idx) != '') {
+                overtimeHistory.overTimeNormal = params.('inputNormalOvertime_'+idx)
+            } else {
+                overtimeHistory.overTimeNormal = '0'
+            }
+
+            if (params.('inputWeekendOvertime_'+idx) != '') {
                 overtimeHistory.overTimeWeekend = params.('inputWeekendOvertime_'+idx)
-                if(params.('inputActualTime_'+idx) != ''){
-                    overtimeHistory.actualTime = Double.valueOf(params.('inputActualTime_'+idx))
-                } else {
-                    overtimeHistory.actualTime = 0
-                }
-
+            } else {
+                overtimeHistory.overTimeWeekend = '0'
+            }
+            overtimeHistory.overTimeWeekend = params.('inputWeekendOvertime_'+idx)
+            if(params.('inputActualTime_'+idx) != ''){
+                overtimeHistory.actualTime = Double.valueOf(params.('inputActualTime_'+idx))
+            } else {
+                overtimeHistory.actualTime = 0
+            }
             overtimeHistory.save(flush: true)
         }
         redirect action: 'show'

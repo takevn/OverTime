@@ -27,6 +27,8 @@
                     <th>Day</th>
                     <th>StartTime</th>
                     <th>EndTime</th>
+                    <th>Hours PaidLeave</th>
+                    <th>Hours UnPaidLeave</th>
                     <th>Actual Times</th>
                     <th>Normal OverTimes</th>
                     <th>Weekend OverTimes</th>
@@ -41,20 +43,38 @@
                             <!--<td><g:textField name="startTime" id="startTime_${stt+1}" class="get-time"/></td>-->
                             <td class="clockpicker " data-placement="left" data-align="top" data-autoclose="true" >
                                 <g:if test="${temp.comeTime == '0'}">
-                                    <input type="text" class="col-sm-4 get-time" name="startTime_${temp.id}" id="startTime_${temp.id}" />
+                                    <input type="text" class="col-sm-5 get-time" name="startTime_${temp.id}" id="startTime_${temp.id}" />
                                 </g:if>
                                 <g:else>
-                                    <input type="text" class="col-sm-4 get-time" name="startTime_${temp.id}" id="startTime_${temp.id}" value="${temp.comeTime}" />
+                                    <input type="text" class="col-sm-5 get-time" name="startTime_${temp.id}" id="startTime_${temp.id}" value="${temp.comeTime}" />
                                 </g:else>
                             </td>
 
                             <!--<td><g:textField name="endTime" id="endTime_${stt+1}" class="get-time" /></td>-->
                             <td class=" clockpicker " data-placement="left" data-align="top" data-autoclose="true" >
                                 <g:if test="${temp.comeTime == '0'}">
-                                    <input type="text" class="col-sm-4 get-time" name="endTime_${temp.id}" id="endTime_${temp.id}"/>
+                                    <input type="text" class="col-sm-5 get-time" name="endTime_${temp.id}" id="endTime_${temp.id}"/>
                                 </g:if>
                                 <g:else>
-                                    <input type="text" class="col-sm-4 get-time" name="endTime_${temp.id}" id="endTime_${temp.id}" value="${temp.leaveTime}"/>
+                                    <input type="text" class="col-sm-5 get-time" name="endTime_${temp.id}" id="endTime_${temp.id}" value="${temp.leaveTime}"/>
+                                </g:else>
+
+                            </td>
+                            <td>
+                                <g:if test="${temp.weekday == 1 || temp.weekday == 7}">
+                                    <input type="text" class="col-sm-5 get-paid-leave" name="hoursPaidLeave_${temp.id}" id="hoursPaidLeave_${temp.id}" disabled="disabled"/>
+                                </g:if>
+                                <g:else>
+                                    <input type="text" class="col-sm-5 get-paid-leave" name="hoursPaidLeave_${temp.id}" id="hoursPaidLeave_${temp.id}" value="${temp.hoursPaidLeave}"/>
+                                </g:else>
+
+                            </td>
+                            <td>
+                                <g:if test="${temp.weekday == 1 || temp.weekday == 7}">
+                                    <input type="text" class="col-sm-5 get-unpaid-leave" name="hoursUnPaidLeave_${temp.id}" id="hoursUnPaidLeave_${temp.id}" disabled="disabled"/>
+                                </g:if>
+                                <g:else>
+                                    <input type="text" class="col-sm-5 get-unpaid-leave" name="hoursUnPaidLeave_${temp.id}" id="hoursUnPaidLeave_${temp.id}" value="${temp.hoursUnPaidLeave}" />
                                 </g:else>
 
                             </td>
@@ -75,11 +95,15 @@
                         <td></td>
                         <td></td>
                         <td></td>
+                        <td><label id="totalPaidLeave">${overTimeMaster.totalPaidLeave}</label></td>
+                        <td><label id="totalUnPaidLeave">${overTimeMaster.totalUnPaidLeave}</label></td>
                         <td></td>
                         <td><label id="totalNormal">${overTimeMaster.totalOvertime}</label></td>
                         <td><label id="totalWeekend">${overTimeMaster.totalOvertimeWeekend}</label></td>
                         <input type="hidden" id="displayTotalNormal" name="displayTotalNormal" value="${overTimeMaster.totalOvertime}">
                         <input type="hidden" id="displayTotalWeekend" name="displayTotalWeekend" value="${overTimeMaster.totalOvertimeWeekend}">
+                        <input type="hidden" id="displayPaidLeave" name="displayPaidLeave" value="${overTimeMaster.totalPaidLeave}">
+                        <input type="hidden" id="displayUnPaidLeave" name="displayUnPaidLeave" value="${overTimeMaster.totalPaidLeave}">
                     </tr>
 
                 </tbody>
@@ -165,6 +189,31 @@
         });
         return total;
     }
+    $( ".get-paid-leave" ).change(function() {
+            var totalPaid;
+            totalPaid = totalPaidLeave('get-paid-leave');
+            $('#totalPaidLeave').text(totalPaid);
+            $('#displayPaidLeave').val(totalPaid);
+
+        });
+
+        $( ".get-unpaid-leave" ).change(function() {
+            var totalUnPaid;
+            totalUnPaid = totalPaidLeave('get-unpaid-leave');
+            $('#totalUnPaidLeave').text(totalUnPaid);
+            $('#displayUnPaidLeave').val(totalUnPaid);
+        });
+
+        function totalPaidLeave($class) {
+        var total = 0;
+            $("."+$class).each(function(index,item) {
+                console.log($(this).val());
+                if($( this ).val()!= '') {
+                    total = total + parseFloat($(this).val());
+                }
+            });
+            return total;
+        }
     });
 </script>
 </body>

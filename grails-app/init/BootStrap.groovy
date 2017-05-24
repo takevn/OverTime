@@ -2,6 +2,7 @@ import org.example.SecRole
 import org.example.SecUser
 import org.example.SecUserSecRole
 
+
 class BootStrap {
     def springSecurityService
 

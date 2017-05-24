@@ -14,7 +14,8 @@ class OvertimeHistory {
     String overTimeNormal
     String overTimeWeekend
     Double actualTime
-
+    String hoursPaidLeave
+    String hoursUnPaidLeave
     static constraints = {
         userId blank: false
         year blank: false
@@ -24,5 +25,7 @@ class OvertimeHistory {
         leaveTime blank: false
         overTimeNormal nullable: true
         overTimeWeekend nullable: true
+        hoursPaidLeave nullable: true
+        hoursUnPaidLeave nullable: true
     }
 }
