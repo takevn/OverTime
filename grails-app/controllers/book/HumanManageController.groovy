@@ -30,6 +30,7 @@ class HumanManageController {
         def totalPaidLeaveList = OvertimeMaster.createCriteria().list {
             eq ('year',calendar.get(Calendar.YEAR))
             eq ('secUser',currentUser)
+            eq ('status','400')
             projections {
                 sum('totalPaidLeave')
             }
@@ -53,22 +54,25 @@ class HumanManageController {
         def employeeListTemp = Employee.findAll(sort:"id")
         def totalLeaveList = OvertimeMaster.createCriteria().list {
             eq ('year',calendar.get(Calendar.YEAR))
+            eq ('status','400')
             projections {
                 sum('totalPaidLeave')
                 groupProperty('secUser')
             }
             order("secUser", "asc")
         }
-        println("totalPaidLeaveList"+totalLeaveList)
-        int idx = 0
-        for(employee in employeeListTemp) {
-            def paidLeave = totalLeaveList.get(idx).getAt(0)
-            println("paidLeave"+paidLeave)
-            double totalPaidLeave = Double.valueOf(employee.totalPaidLeave)
-            employee.remainPaidLeave = totalPaidLeave - paidLeave/8
-            employee.save(flush: true)
-            idx ++
+        if (totalLeaveList.size() > 0) {
+            int idx = 0
+            for(employee in employeeListTemp) {
+                def paidLeave = totalLeaveList.get(idx).getAt(0)
+                println("paidLeave"+paidLeave)
+                double totalPaidLeave = Double.valueOf(employee.totalPaidLeave)
+                employee.remainPaidLeave = totalPaidLeave - paidLeave/8
+                employee.save(flush: true)
+                idx ++
+            }
         }
+
         def employeeList = Employee.findAll(sort:"id")
         render view: "employeeManage", model: [employeeList: employeeList]
     }

@@ -16,7 +16,7 @@ public class OverTime {
         return roundedNumber;
     }
 
-    Map<String, Object> getOverTimeUsingCalendar(String comeDate, String leaveDate) {
+    Map<String, Object> getOverTimeUsingCalendar(String comeDate, String leaveDate, String hoursPaidLeave, String hoursUnPaidLeave) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 //        DateFormat df = new SimpleDateFormat("HH:mm");
         Calendar calComeDate = Calendar.getInstance();
@@ -25,13 +25,36 @@ public class OverTime {
         double overTimeInHours = 0;
         boolean isWeekend = false;
         double actualWokingTime = 0;
+        String statusCome = "";
         Map<String, Object> resultMap = new HashMap<String, Object>() {
         };
 
         try {
+
             calComeDate.setTime(df.parse(comeDate));
             calLeaveDate.setTime(df.parse(leaveDate));
-
+            if (calLeaveDate.get(Calendar.DAY_OF_WEEK) == 1) {
+                isWeekend = true;
+            }
+            if (!isWeekend) {
+                if (hoursPaidLeave != "" || hoursUnPaidLeave != "") {
+                    statusCome = "100";
+                } else {
+                    int a = calComeDate.get(Calendar.HOUR_OF_DAY);
+                    int b = calComeDate.get(Calendar.MINUTE);
+                    if (calComeDate.get(Calendar.HOUR_OF_DAY) == 8) {
+                        if (calComeDate.get(Calendar.MINUTE) > 0 && calComeDate.get(Calendar.MINUTE) <= 16) {
+                            statusCome = "200";
+                        } else {
+                            if (calComeDate.get(Calendar.MINUTE) > 16) {
+                                statusCome = "300";
+                            }
+                        }
+                    } else if (calComeDate.get(Calendar.HOUR_OF_DAY) > 8) {
+                        statusCome = "300";
+                    }
+                }
+            }
             roundComeDate(calComeDate);
             roundLeaveDate(calLeaveDate);
 
@@ -42,19 +65,19 @@ public class OverTime {
             } else if (diffMinute == -30) {
                 actualWokingTime -= 0.5;
             }
-
             // leave after 13:00
             if (calLeaveDate.get(Calendar.HOUR_OF_DAY) > 13) {
-                actualWokingTime -= 1;
-            }
+                if (calComeDate.get(Calendar.HOUR_OF_DAY) < 12) {
+                    actualWokingTime -= 1;
+                }
 
-            if (calLeaveDate.get(Calendar.DAY_OF_WEEK) == 1) {
-                isWeekend = true;
             }
             // NORMAL DAY case
             if (!isWeekend) {
                 overTimeInHours = actualWokingTime - EIGHT_HOURS;
-                if (actualWokingTime < 8) actualWokingTime += 0.5;
+                if (actualWokingTime < 8) {
+                    actualWokingTime += 0.5;
+                }
             } else {// Sunday case
                 overTimeInHours = actualWokingTime;
             }
@@ -67,7 +90,7 @@ public class OverTime {
         resultMap.put("isWeekend", isWeekend);
         resultMap.put("actualWokingTime", roundHalf(actualWokingTime));
         resultMap.put("overTimeInHours", roundHalf(overTimeInHours));
-
+        resultMap.put("statusCome", statusCome);
         return resultMap;
     }
 
@@ -103,9 +126,6 @@ public class OverTime {
         float c0 = calendar.get(Calendar.HOUR_OF_DAY);
         float d0 = calendar.get(Calendar.MINUTE);
         roundHourOfLeaveDate(calendar);
-
-        int aaaa =  calendar.get(Calendar.DAY_OF_WEEK);
-
         // TODO remove test code
         float c = calendar.get(Calendar.HOUR_OF_DAY);
         float d = calendar.get(Calendar.MINUTE);
@@ -122,7 +142,6 @@ public class OverTime {
             }
             return;
         }
-        int aaaa1 =  calendar.get(Calendar.DAY_OF_WEEK);
         roundMinuteLeaveTime(calendar);
 
         // TODO remove test code
@@ -134,6 +153,7 @@ public class OverTime {
         // if      minute leave < 15 then round to 30 and hour -1
         // else if minute leave < 45 then round to 0
         // else    round to 30
+
         if (calendar.get(Calendar.MINUTE) < 15) {
             calendar.set(Calendar.MINUTE, 30);
             calendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY) - 1);

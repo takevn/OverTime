@@ -32,6 +32,7 @@
                     <th>Actual Times</th>
                     <th>Normal OverTimes</th>
                     <th>Weekend OverTimes</th>
+                    <th>Status</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -81,10 +82,11 @@
                             <td id="actualTime_${temp.id}">${temp.actualTime}</td>
                             <td id="normalOvertime_${temp.id}" class="normal-overtime">${temp.overTimeNormal}</td>
                             <td id="weekendOvertime_${temp.id}" class="weekend-overtime">${temp.overTimeWeekend}</td>
-
+                            <td name="statusCome_${temp.id}" id="statusCome_${temp.id}">${temp.statusComeCompany}</td>
                             <input type="hidden" id="inputNormalOvertime_${temp.id}" name="inputNormalOvertime_${temp.id}" value="${temp.overTimeNormal}">
                             <input type="hidden" id="inputWeekendOvertime_${temp.id}" name="inputWeekendOvertime_${temp.id}" value="${temp.overTimeWeekend}">
                             <input type="hidden" id="inputActualTime_${temp.id}" name="inputActualTime_${temp.id}" value="${temp.actualTime}">
+                            <input type="hidden" id="displayStatusCome_${temp.id}" name="displayStatusCome_${temp.id}">
                             <g:hiddenField name="day_${temp.id}" value="${temp.day}" id="day_${temp.id}" />
                         </tr>
 
@@ -104,6 +106,7 @@
                         <input type="hidden" id="displayTotalWeekend" name="displayTotalWeekend" value="${overTimeMaster.totalOvertimeWeekend}">
                         <input type="hidden" id="displayPaidLeave" name="displayPaidLeave" value="${overTimeMaster.totalPaidLeave}">
                         <input type="hidden" id="displayUnPaidLeave" name="displayUnPaidLeave" value="${overTimeMaster.totalPaidLeave}">
+
                     </tr>
 
                 </tbody>
@@ -136,12 +139,14 @@
         var year = $('#year').val();
         var startTime = $('#startTime_'+index).val();
         var endTime = $('#endTime_'+index).val();
+        var hoursPaidLeave = $('#hoursPaidLeave_'+index).val();
+        var hoursUnPaidLeave = $('#hoursUnPaidLeave_'+index).val();
         var totalOt;
         if (startTime != '' && endTime!='') {
             $.ajax({
                 method: "POST",
                 url: "${createLink(controller:'overTime' ,action: 'getOverTime')}",
-                data: { day: day, months: month, year: year, startTime:startTime, endTime:endTime }
+                data: { day: day, months: month, year: year, startTime:startTime, endTime:endTime,hoursPaidLeave:hoursPaidLeave, hoursUnPaidLeave:hoursUnPaidLeave }
             })
             .done(function( msg ) {
                 if(msg.weekend == false) {
@@ -153,6 +158,8 @@
                     totalOt= totalOverTime('normal-overtime');
                     $('#totalNormal').html(totalOt);
                     $('#displayTotalNormal').val(totalOt);
+                    $('#statusCome_'+index).html(msg.statusCome);
+                    $('#displayStatusCome_'+index).val(msg.statusCome);
 
                 } else {
                     $('#weekendOvertime_'+index).html(msg.total);
