@@ -110,8 +110,15 @@
                         totalOt= totalOverTime('normal-overtime');
                         $('#totalNormal').html(totalOt);
                         $('#displayTotalNormal').val(totalOt);
-                        console.log('aaa'+msg.statusCome);
-                        $('#statusCome_'+index).html(msg.statusCome);
+
+                        if (msg.statusCome == "100") {
+                            $('#statusCome_'+index).html("<g:message code='status.come.company.100'/>");
+                        } else if (msg.statusCome == "200") {
+                            $('#statusCome_'+index).html("<g:message code='status.come.company.200'/>");
+                        } else if (msg.statusCome == "300") {
+                            $('#statusCome_'+index).html("<g:message code='status.come.company.300'/>");
+                        }
+
                         $('#displayStatusCome_'+index).val(msg.statusCome);
 
                     } else {
@@ -123,7 +130,6 @@
                         $('#totalWeekend').html(totalOt);
                         $('#displayTotalWeekend').val(totalOt);
                     }
-
                 });
             } else if (startTime != '' ||  endTime!=''){
                 $('#actualTime_'+index).html(0);
@@ -143,10 +149,8 @@
         function totalOverTime($class) {
         var total = 0;
             $("."+$class).each(function(index,item) {
-                console.log($(this).text());
                 if($( this ).text()!= '') {
                     total = total + parseFloat($(this).text());
-                    console.log('total'+total);
                 }
             });
             return total;

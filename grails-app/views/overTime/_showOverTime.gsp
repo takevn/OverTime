@@ -1,5 +1,5 @@
 
-<table class="table table-bordered" xmlns:g="http://www.w3.org/1999/html" xmlns:g="http://www.w3.org/1999/html">
+<table class="table table-bordered">
     <thead>
         <tr >
             <th class="col-sm-1">STT</th>
@@ -43,7 +43,7 @@
                 </g:if>
             </td>
             <td class="col-sm-1">
-                <button type="button" class="btn btn-primary print-btn" id="btnPrint_${temp.id}">Print</button>
+                <button type="button" class="btn btn-primary glyphicon glyphicon-print print-btn" id="btnPrint_${temp.id}"></button>
             </td>
         </tr>
     </g:each>
