@@ -47,7 +47,7 @@
                     <sec:ifAnyGranted roles='ROLE_HR,ROLE_MANAGER'>
                         <li class="active"><a href="${createLink(controller:'humanManage', action:'employeeManage')}" /><i class="fa fa-circle-o"></i>Employee Infomation</a></li>
                     </sec:ifAnyGranted>
-
+                    <li class="active"><a href="${createLink(controller:'overTime', action:'showComeLateAndTakeLeave')}" /><i class="fa fa-circle-o"></i>Show TakeLeave and Come late</a></li>
                 </ul>
             </li>
 

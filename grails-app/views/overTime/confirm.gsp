@@ -68,7 +68,7 @@
 </head>
 <body class="margin-200">
     <div class="text-font ">
-        Month: ${overtimeMaster.month}    Year: ${overtimeMaster.year}
+        Month: ${overTimeMaster.month}    Year: ${overTimeMaster.year}
         <br>
         <br>
         Division: IT
@@ -90,7 +90,7 @@
         </thead>
         <tbody>
 
-            <g:each var="temp" in="${overtimeMaster.overtimeHistory}" status="stt">
+            <g:each var="temp" in="${overTimeMaster.overtimeHistory}" status="stt">
                 <g:if test="${temp.comeTime != '0' || temp.leaveTime != '0'}">
                     <g:if test="${temp.overTimeNormal != '0' || temp.overTimeWeekend != '0'}">
                         <tr>
@@ -107,8 +107,8 @@
             </g:each>
             <tr>
                 <th colspan="5">Total</th>
-                <th>${overtimeMaster.totalOvertime}</th>
-                <th>${overtimeMaster.totalOvertimeWeekend}</th>
+                <th>${overTimeMaster.totalOvertime}</th>
+                <th>${overTimeMaster.totalOvertimeWeekend}</th>
             </tr>
         </tbody>
     </table>

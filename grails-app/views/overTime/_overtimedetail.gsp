@@ -11,6 +11,7 @@
         <th>Actual Times</th>
         <th>Normal OverTimes</th>
         <th>Weekend OverTimes</th>
+        <th>Status</th>
     </tr>
     </thead>
     <tbody>
@@ -50,10 +51,12 @@
             <td name ="actualTime_${stt+1}" id="actualTime_${stt+1}"></td>
             <td name="normalOvertime_${stt+1}"id="normalOvertime_${stt+1}" class="normal-overtime"></td>
             <td name="weekendOvertime_${stt+1}" id="weekendOvertime_${stt+1}" class="weekend-overtime"></td>
+            <td name="statusCome_${stt+1}" id="statusCome_${stt+1}"></td>
             <g:hiddenField name="day_${stt+1}" value="${temp.day}" id="day_${stt+1}" />
             <input type="hidden" id="inputNormalOvertime_${stt+1}" name="inputNormalOvertime_${stt+1}">
             <input type="hidden" id="inputWeekendOvertime_${stt+1}" name="inputWeekendOvertime_${stt+1}">
             <input type="hidden" id="inputActualTime_${stt+1}" name="inputActualTime_${stt+1}">
+            <input type="hidden" id="displayStatusCome_${stt+1}" name="displayStatusCome_${stt+1}">
         </tr>
 
     </g:each>
@@ -72,6 +75,7 @@
         <input type="hidden" id="displayTotalWeekend" name="displayTotalWeekend">
         <input type="hidden" id="displayPaidLeave" name="displayPaidLeave">
         <input type="hidden" id="displayUnPaidLeave" name="displayUnPaidLeave">
+        <input type="hidden" id="displayStatusCome" name="displayStatusCome">
     </tr>
 
 
@@ -88,12 +92,14 @@
             var year = $('#year').val();
             var startTime = $('#startTime_'+index).val();
             var endTime = $('#endTime_'+index).val();
+            var hoursPaidLeave = $('#hoursPaidLeave_'+index).val();
+            var hoursUnPaidLeave = $('#hoursUnPaidLeave_'+index).val();
             var totalOt;
             if (startTime != '' && endTime!='') {
                 $.ajax({
                     method: "POST",
                     url: "${createLink(controller:'overTime' ,action: 'getOverTime')}",
-                    data: { day: day, months: month, year: year, startTime:startTime, endTime:endTime }
+                    data: { day: day, months: month, year: year, startTime:startTime, endTime:endTime, hoursPaidLeave:hoursPaidLeave, hoursUnPaidLeave:hoursUnPaidLeave}
                 })
                 .done(function( msg ) {
                     if(msg.weekend == false) {
@@ -105,6 +111,16 @@
                         $('#totalNormal').html(totalOt);
                         $('#displayTotalNormal').val(totalOt);
 
+                        if (msg.statusCome == "100") {
+                            $('#statusCome_'+index).html("<g:message code='status.come.company.100'/>");
+                        } else if (msg.statusCome == "200") {
+                            $('#statusCome_'+index).html("<g:message code='status.come.company.200'/>");
+                        } else if (msg.statusCome == "300") {
+                            $('#statusCome_'+index).html("<g:message code='status.come.company.300'/>");
+                        }
+
+                        $('#displayStatusCome_'+index).val(msg.statusCome);
+
                     } else {
                         $('#weekendOvertime_'+index).html(msg.total);
                         $('#inputWeekendOvertime_'+index).val(msg.total);
@@ -114,7 +130,6 @@
                         $('#totalWeekend').html(totalOt);
                         $('#displayTotalWeekend').val(totalOt);
                     }
-
                 });
             } else if (startTime != '' ||  endTime!=''){
                 $('#actualTime_'+index).html(0);
@@ -134,10 +149,8 @@
         function totalOverTime($class) {
         var total = 0;
             $("."+$class).each(function(index,item) {
-                console.log($(this).text());
                 if($( this ).text()!= '') {
                     total = total + parseFloat($(this).text());
-                    console.log('total'+total);
                 }
             });
             return total;

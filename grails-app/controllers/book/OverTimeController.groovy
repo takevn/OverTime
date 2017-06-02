@@ -55,8 +55,10 @@ class OverTimeController {
         def year = params.year
         def month = params.months
         def day = params.day
-        def otData = overTimeService.getOverTime(year, month, day, startTime, endTime)
-        response = [status: 200, total: otData.overTimeInHours, weekend: otData.isWeekend, actualTimes: otData.actualWokingTime]
+        def hoursPaidLeave = params.hoursPaidLeave
+        def hoursUnPaidLeave = params.hoursUnPaidLeave
+        def otData = overTimeService.getOverTime(year, month, day, startTime, endTime, hoursPaidLeave, hoursUnPaidLeave)
+        response = [status: 200, total: otData.overTimeInHours, weekend: otData.isWeekend, actualTimes: otData.actualWokingTime, statusCome: otData.statusCome]
         render response as JSON
     }
 
@@ -95,6 +97,8 @@ class OverTimeController {
         double totalWeekend
         double totalPaidLeave
         double totalUnPaidLeave
+        def displayStatusCome
+
         if (params.displayTotalNormal != '') {
             totalNormal = Double.valueOf(params.displayTotalNormal)
         } else {
@@ -116,6 +120,7 @@ class OverTimeController {
             totalUnPaidLeave = 0
         }
 
+
 //        if (totalNormal > 0 || totalWeekend > 0) {
         overtimeMaster.year = temp.get(Calendar.YEAR)
         overtimeMaster.month = selectedMonth
@@ -126,7 +131,6 @@ class OverTimeController {
         overtimeMaster.totalUnPaidLeave = totalUnPaidLeave
         overtimeMaster.save(flush: true)
         currentUser.addToOvertimeMaster(overtimeMaster).save(flush: true)//        }
-        println "totalday" + totalday
 
         for (int i = 1; i <= Integer.valueOf(totalday); i++) {
             temp.set(Calendar.DAY_OF_MONTH, i)
@@ -137,6 +141,7 @@ class OverTimeController {
             weekendOvertime = params.('inputWeekendOvertime_' + i)
             hoursPaidleave = params.('hoursPaidLeave_'+i)
             hoursUnPaidleave = params.('hoursUnPaidLeave_'+i)
+            displayStatusCome = params.('displayStatusCome_'+i)
             def overTimeHistoryCheck = OvertimeHistory.findWhere(day: i,
                                                             month: selectedMonth,
                                                             year: temp.get(Calendar.YEAR),
@@ -158,24 +163,25 @@ class OverTimeController {
                 if (tempNormalOverTime) {
                     if (Double.valueOf(tempNormalOverTime) > 0) {
                         overtimeHistoryTemp.overTimeNormal = tempNormalOverTime
-                        overtimeHistoryTemp.overTimeWeekend = 0
+                        overtimeHistoryTemp.overTimeWeekend = weekendOvertime
                     }  else {
-                        overtimeHistoryTemp.overTimeWeekend = 0
-                        overtimeHistoryTemp.overTimeNormal = 0
+                        overtimeHistoryTemp.overTimeWeekend = weekendOvertime
+                        overtimeHistoryTemp.overTimeNormal = tempNormalOverTime
                     }
                 }
                 if (weekendOvertime) {
                     if (Double.valueOf(weekendOvertime) > 0) {
-                        overtimeHistoryTemp.overTimeNormal = 0
+                        overtimeHistoryTemp.overTimeNormal = tempNormalOverTime
                         overtimeHistoryTemp.overTimeWeekend = weekendOvertime
                     }  else {
-                        overtimeHistoryTemp.overTimeWeekend = 0
-                        overtimeHistoryTemp.overTimeNormal = 0
+                        overtimeHistoryTemp.overTimeWeekend = weekendOvertime
+                        overtimeHistoryTemp.overTimeNormal = tempNormalOverTime
                     }
                 }
 
                 overtimeHistoryTemp.hoursPaidLeave = hoursPaidleave
                 overtimeHistoryTemp.hoursUnPaidLeave = hoursUnPaidleave
+                overtimeHistoryTemp.statusComeCompany = displayStatusCome
                 overtimeHistoryTemp.save(flush: true)
                 overtimeMaster.addToOvertimeHistory(overtimeHistoryTemp).save(flush: true)
 
@@ -215,7 +221,7 @@ class OverTimeController {
                 overtimeMaster.addToOvertimeHistory(overtimeHistoryTemp).save(flush: true)
             }
         }
-        render view: 'confirm', model: [overtimeMaster:overtimeMaster]
+        redirect action: 'show', model: [overtimeMaster:overtimeMaster]
 
     }
 
@@ -259,6 +265,68 @@ class OverTimeController {
         def managerList = SecUserSecRole.findAllWhere(secRole:roleManager).secUser
 
         render(template: '/overTime/showOverTime', model: [overTimeMaster: overTimeMasterList, managerList:managerList])
+    }
+
+    @Secured(['ROLE_ADMIN', 'ROLE_EMPLOYEE', 'ROLE_MANAGER', 'ROLE_HR'])
+    def printExel() {
+
+        long id = Long.valueOf(params.printOverTimeMasterId)
+        def overTimeMaster = OvertimeMaster.get(id)
+        render view: 'confirm', model: [overTimeMaster: overTimeMaster]
+    }
+
+    @Secured(['ROLE_ADMIN', 'ROLE_EMPLOYEE', 'ROLE_MANAGER', 'ROLE_HR'])
+    def showComeLateAndTakeLeave() {
+        int currentUser = springSecurityService.currentUser.id
+        println "currentUser = $currentUser"
+        Calendar calendar = Calendar.getInstance()
+        int selectedYear
+        int selectedMonth
+        if (params.selectedYear == null) {
+            selectedYear = calendar.get(Calendar.YEAR)
+        } else {
+            selectedYear = Integer.valueOf(params.selectedYear)
+        }
+
+        if (params.selectedMonth == null) {
+            selectedMonth = calendar.get(Calendar.MONTH)+1
+        } else {
+            selectedMonth = Integer.valueOf(params.selectedMonth)
+        }
+        println("selectedMonth"+selectedMonth+"selectedYear"+selectedYear)
+        def overTimeHistory = OvertimeHistory.createCriteria().list {
+            isNotNull("statusComeCompany")
+            eq("month", selectedMonth)
+            eq("year", selectedYear)
+            eq("userId", currentUser)
+        }
+
+        render view: 'showComeLateAndTakeLeave', model: [overTimeHistory: overTimeHistory, year: calendar.get(Calendar.YEAR), month: calendar.get(Calendar.MONTH)+1]
+    }
+
+    @Secured(['ROLE_ADMIN', 'ROLE_EMPLOYEE', 'ROLE_MANAGER', 'ROLE_HR'])
+    def reloadShowComeLateAndTakeLeave() {
+
+        Calendar calendar = Calendar.getInstance()
+        int selectedYear
+        int selectedMonth
+        if (params.selectedYear == null) {
+            selectedYear = calendar.get(Calendar.YEAR)
+        } else {
+            selectedYear = Integer.valueOf(params.selectedYear)
+        }
+
+        if (params.selectedMonth == null) {
+            selectedMonth = calendar.get(Calendar.MONTH)+1
+        } else {
+            selectedMonth = Integer.valueOf(params.selectedMonth)
+        }
+        def overTimeHistory = OvertimeHistory.createCriteria().list {
+            isNotNull("statusComeCompany")
+            eq("month",selectedMonth)
+            eq("year",selectedYear)
+        }
+        render(template: '/overTime/tempShowComeLateAndTakeLeave', model: [overTimeHistory: overTimeHistory])
     }
 
     @Secured(['ROLE_ADMIN', 'ROLE_EMPLOYEE', 'ROLE_MANAGER', 'ROLE_HR'])
@@ -325,6 +393,7 @@ class OverTimeController {
             } else {
                 overtimeHistory.actualTime = 0
             }
+            overtimeHistory.statusComeCompany = params.('displayStatusCome_'+idx)
             overtimeHistory.save(flush: true)
         }
         redirect action: 'show'

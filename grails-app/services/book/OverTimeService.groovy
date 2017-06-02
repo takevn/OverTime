@@ -10,7 +10,7 @@ import bip.ot.OverTime;
 @Transactional
 class OverTimeService {
 
-    def getOverTime(String year, String month, String day, String comeTime, String leaveTime) throws Exception {
+    def getOverTime(String year, String month, String day, String comeTime, String leaveTime, String hoursPaidLeave, String hoursUnPaidLeave) throws Exception {
         StringBuilder comeDate = new StringBuilder()
         StringBuilder leaveDate = new StringBuilder()
         OverTime overTime = new OverTime();
@@ -34,7 +34,7 @@ class OverTimeService {
         calendar.set(Calendar.MONTH, Integer.parseInt(month)-1)
         calendar.set(Calendar.YEAR, Integer.parseInt(year))
 
-        def map =  overTime.getOverTimeUsingCalendar(comeDate.toString(), leaveDate.toString())
+        def map =  overTime.getOverTimeUsingCalendar(comeDate.toString(), leaveDate.toString(), hoursPaidLeave, hoursUnPaidLeave)
         return map
     }
 }
