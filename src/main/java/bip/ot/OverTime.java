@@ -16,7 +16,7 @@ public class OverTime {
         return roundedNumber;
     }
 
-    Map<String, Object> getOverTimeUsingCalendar(String comeDate, String leaveDate) {
+    Map<String, Object> getOverTimeUsingCalendar(String comeDate, String leaveDate, String hoursPaidLeave, String hoursUnPaidLeave) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 //        DateFormat df = new SimpleDateFormat("HH:mm");
         Calendar calComeDate = Calendar.getInstance();
@@ -25,6 +25,7 @@ public class OverTime {
         double overTimeInHours = 0;
         boolean isWeekend = false;
         double actualWokingTime = 0;
+        String statusCome = "";
         Map<String, Object> resultMap = new HashMap<String, Object>() {
         };
 
@@ -36,10 +37,6 @@ public class OverTime {
             roundLeaveDate(calLeaveDate);
 
             actualWokingTime = calLeaveDate.get(Calendar.HOUR_OF_DAY) - calComeDate.get(Calendar.HOUR_OF_DAY);
-            float c1 = calComeDate.get(Calendar.HOUR_OF_DAY);
-            float d1 = calComeDate.get(Calendar.MINUTE);
-            float c2 = calLeaveDate.get(Calendar.HOUR_OF_DAY);
-            float d2 = calLeaveDate.get(Calendar.MINUTE);
             double diffMinute = calLeaveDate.get(Calendar.MINUTE) - calComeDate.get(Calendar.MINUTE);
             if (diffMinute == 30) {
                 actualWokingTime += 0.5;
@@ -55,7 +52,6 @@ public class OverTime {
             // NORMAL DAY case
             if (!isWeekend) {
                 overTimeInHours = actualWokingTime - EIGHT_HOURS;
-//                if (actualWokingTime < 8) actualWokingTime += 0.5;
             } else {// Sunday case
                 overTimeInHours = actualWokingTime;
             }
@@ -64,12 +60,37 @@ public class OverTime {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        statusCome = getStatusCome(hoursPaidLeave, hoursUnPaidLeave, calComeDate, isWeekend, statusCome);
 
         resultMap.put("isWeekend", isWeekend);
         resultMap.put("actualWokingTime", roundHalf(actualWokingTime));
         resultMap.put("overTimeInHours", roundHalf(overTimeInHours));
+        resultMap.put("statusCome", statusCome);
 
         return resultMap;
+    }
+
+    private String getStatusCome(String hoursPaidLeave, String hoursUnPaidLeave, Calendar calComeDate, boolean isWeekend, String statusCome) {
+        if (!isWeekend) {
+            if (hoursPaidLeave != "" || hoursUnPaidLeave != "") {
+                statusCome = "100";
+            } else {
+                int a = calComeDate.get(Calendar.HOUR_OF_DAY);
+                int b = calComeDate.get(Calendar.MINUTE);
+                if (calComeDate.get(Calendar.HOUR_OF_DAY) == 8) {
+                    if (calComeDate.get(Calendar.MINUTE) > 0 && calComeDate.get(Calendar.MINUTE) <= 16) {
+                        statusCome = "200";
+                    } else {
+                        if (calComeDate.get(Calendar.MINUTE) > 16) {
+                            statusCome = "300";
+                        }
+                    }
+                } else if (calComeDate.get(Calendar.HOUR_OF_DAY) > 8) {
+                    statusCome = "300";
+                }
+            }
+        }
+        return statusCome;
     }
 
     private void roundComeDate(Calendar comeTime) {

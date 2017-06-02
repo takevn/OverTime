@@ -125,8 +125,8 @@ class OverTimeTest extends Specification {
     @Unroll
     def "getOverTimeUsingCalendar(#comeDate, #leaveDate): #actualWorkingTime hour, #ot hour, isWeekend: #isWeekend"() {
         given:
-        Map<Integer, Object> resultMap = new HashMap<Integer, Object>() {}
-        resultMap = overTime.getOverTimeUsingCalendar(comeDate, leaveDate)
+        Map<String, Object> resultMap = new HashMap<String, Object>() {}
+        resultMap = overTime.getOverTimeUsingCalendar(comeDate, leaveDate, "0", "0")
 
         expect:
         resultMap.get("isWeekend") == isWeekend
