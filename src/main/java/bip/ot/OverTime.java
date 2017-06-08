@@ -16,18 +16,18 @@ public class OverTime {
         return roundedNumber;
     }
 
-    Map<String, Object> getOverTimeUsingCalendar(String comeDate, String leaveDate, String hoursPaidLeave, String hoursUnPaidLeave) {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+          Map<String, Object> getOverTimeUsingCalendar(String comeDate, String leaveDate, String hoursPaidLeave, String hoursUnPaidLeave) {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 //        DateFormat df = new SimpleDateFormat("HH:mm");
-        Calendar calComeDate = Calendar.getInstance();
-        Calendar calLeaveDate = Calendar.getInstance();
-        final double EIGHT_HOURS = 8;
-        double overTimeInHours = 0;
-        boolean isWeekend = false;
-        double actualWokingTime = 0;
-        String statusCome = "";
-        Map<String, Object> resultMap = new HashMap<String, Object>() {
-        };
+            Calendar calComeDate = Calendar.getInstance();
+            Calendar calLeaveDate = Calendar.getInstance();
+            final double EIGHT_HOURS = 8;
+            double overTimeInHours = 0;
+            boolean isWeekend = false;
+            double actualWokingTime = 0;
+            String statusCome = "";
+            Map<String, Object> resultMap = new HashMap<String, Object>() {
+            };
 
         try {
             calComeDate.setTime(df.parse(comeDate));

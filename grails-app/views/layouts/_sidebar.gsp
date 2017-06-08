@@ -40,7 +40,7 @@
                             <%
                                 def numOfUnassignTask = notificationService.getUnassignTaskOfHr()
                             %>
-                            <a href="${createLink(controller:'overTime', action:'show')}" /><i class="fa fa-circle-o"></i>UnAssignTask    <span class="label label-warning" id="notificationNumHr">${numOfUnassignTask?:0}</span></a>
+                            <a href="${createLink(controller:'overTime', action:'hrShowAll')}" /><i class="fa fa-circle-o"></i>UnAssignTask<span class="label label-warning" id="notificationNumHr">${numOfUnassignTask?:0}</span></a>
                         </li>
                     </sec:ifAllGranted>
                     <li class="active"><a href="${createLink(controller:'humanManage', action:'index')}" /><i class="fa fa-circle-o"></i>Personal Infomation</a></li>
@@ -48,6 +48,7 @@
                         <li class="active"><a href="${createLink(controller:'humanManage', action:'employeeManage')}" /><i class="fa fa-circle-o"></i>Employee Infomation</a></li>
                     </sec:ifAnyGranted>
                     <li class="active"><a href="${createLink(controller:'overTime', action:'showComeLateAndTakeLeave')}" /><i class="fa fa-circle-o"></i>Show TakeLeave and Come late</a></li>
+
                 </ul>
             </li>
 
@@ -55,12 +56,11 @@
     </section>
     <!-- /.sidebar -->
 </aside>
-
-<script>
-    $( document ).ready(function() {
+<sec:ifAllGranted roles='ROLE_HR'>
+    <script>
+        $( document ).ready(function() {
             var socket = new SockJS("${createLink(uri: '/stomp')}");
             var client = Stomp.over(socket);
-
 
             client.connect({}, function() {
                 client.subscribe("/topic/messagetoHR", function(message) {
@@ -69,7 +69,6 @@
                     $('#notificationNumHr').html(num+1);
                 });
             });
-
-
-    });
-</script>
+        });
+    </script>
+</sec:ifAllGranted>

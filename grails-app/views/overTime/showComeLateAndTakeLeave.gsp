@@ -15,8 +15,8 @@
         </h1>
     </section>
     <div class="col-sm-4">
-        <g:select from="${2006..2020}" name="selectedYear" id="selectedYear" value="${year}" class="form-control"/>
-        <g:select from="${1..12}" name="selectedMonth" id="selectedMonth" value="${month}" />
+        <g:select from="${2006..2020}" noSelection="${['null':'All']}" name="selectedYear" id="selectedYear" value="${year}" class="form-control"/>
+        <g:select from="${1..12}" noSelection="${['null':'All']}" name="selectedMonth" id="selectedMonth" value="${month}" />
     </div>
     <div class="col-sm-12" class="table-responsive" id="showComeLateAndTakeLeave">
         <g:render template="/overTime/tempShowComeLateAndTakeLeave" />

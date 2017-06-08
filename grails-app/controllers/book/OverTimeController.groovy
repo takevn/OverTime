@@ -87,9 +87,16 @@ class OverTimeController {
             eq("secUser",currentUser)
         }
 
-        if(overtimeMasterList.size() > 0) {
-            overtimeMaster = overtimeMasterList[0]
 
+        if(overtimeMasterList.size() > 0) {
+            if (overtimeMasterList[0].status == '100') {
+                overtimeMaster = overtimeMasterList[0]
+            } else {
+                println("dmmm vao day")
+                flash.confirmMessage = "this month was confirmed, cannot change"
+                redirect action: "index"
+                return
+            }
         } else {
             overtimeMaster = new OvertimeMaster()
         }
@@ -146,6 +153,7 @@ class OverTimeController {
                                                             month: selectedMonth,
                                                             year: temp.get(Calendar.YEAR),
                                                             overtimeMaster:overtimeMaster)
+
             if (startTime && endTime) {
                 if (!overTimeHistoryCheck) {
                     overtimeHistoryTemp = new OvertimeHistory()
@@ -217,6 +225,7 @@ class OverTimeController {
                 overtimeHistoryTemp.overTimeNormal = 0
                 overtimeHistoryTemp.hoursPaidLeave = hoursPaidleave
                 overtimeHistoryTemp.hoursUnPaidLeave = hoursUnPaidleave
+                overtimeHistoryTemp.statusComeCompany = displayStatusCome
                 overtimeHistoryTemp.save(flush: true)
                 overtimeMaster.addToOvertimeHistory(overtimeHistoryTemp).save(flush: true)
             }
@@ -269,7 +278,6 @@ class OverTimeController {
 
     @Secured(['ROLE_ADMIN', 'ROLE_EMPLOYEE', 'ROLE_MANAGER', 'ROLE_HR'])
     def printExel() {
-
         long id = Long.valueOf(params.printOverTimeMasterId)
         def overTimeMaster = OvertimeMaster.get(id)
         render view: 'confirm', model: [overTimeMaster: overTimeMaster]
@@ -278,7 +286,7 @@ class OverTimeController {
     @Secured(['ROLE_ADMIN', 'ROLE_EMPLOYEE', 'ROLE_MANAGER', 'ROLE_HR'])
     def showComeLateAndTakeLeave() {
         int currentUser = springSecurityService.currentUser.id
-        println "currentUser = $currentUser"
+
         Calendar calendar = Calendar.getInstance()
         int selectedYear
         int selectedMonth
@@ -293,38 +301,32 @@ class OverTimeController {
         } else {
             selectedMonth = Integer.valueOf(params.selectedMonth)
         }
-        println("selectedMonth"+selectedMonth+"selectedYear"+selectedYear)
+
         def overTimeHistory = OvertimeHistory.createCriteria().list {
             isNotNull("statusComeCompany")
+            ne("statusComeCompany", "")
             eq("month", selectedMonth)
             eq("year", selectedYear)
             eq("userId", currentUser)
         }
-
         render view: 'showComeLateAndTakeLeave', model: [overTimeHistory: overTimeHistory, year: calendar.get(Calendar.YEAR), month: calendar.get(Calendar.MONTH)+1]
     }
 
     @Secured(['ROLE_ADMIN', 'ROLE_EMPLOYEE', 'ROLE_MANAGER', 'ROLE_HR'])
     def reloadShowComeLateAndTakeLeave() {
-
+        int currentUser = springSecurityService.currentUser.id
         Calendar calendar = Calendar.getInstance()
-        int selectedYear
-        int selectedMonth
-        if (params.selectedYear == null) {
-            selectedYear = calendar.get(Calendar.YEAR)
-        } else {
-            selectedYear = Integer.valueOf(params.selectedYear)
-        }
 
-        if (params.selectedMonth == null) {
-            selectedMonth = calendar.get(Calendar.MONTH)+1
-        } else {
-            selectedMonth = Integer.valueOf(params.selectedMonth)
-        }
         def overTimeHistory = OvertimeHistory.createCriteria().list {
             isNotNull("statusComeCompany")
-            eq("month",selectedMonth)
-            eq("year",selectedYear)
+            ne("statusComeCompany", "")
+            if(params.selectedMonth != 'null') {
+                eq("month",Integer.valueOf(params.selectedMonth))
+            }
+            if(params.selectedYear != 'null') {
+                eq("year",Integer.valueOf(params.selectedYear))
+            }
+            eq("userId", currentUser)
         }
         render(template: '/overTime/tempShowComeLateAndTakeLeave', model: [overTimeHistory: overTimeHistory])
     }
@@ -410,7 +412,7 @@ class OverTimeController {
         notification.message = "you have new overtime request id: "+overTimeMaster.id
         notification.targetUser = SecUser.get(params.selectedManagerId).username
         notification.status = "unread"
-        notification.masterId = params.selectedOverTimeMasterId
+        notification.masterId = Integer.valueOf(params.selectedOverTimeMasterId)
         notification.save(flush: true)
 
         def notificationUnreadMessage = Notification.createCriteria().list() {
@@ -425,14 +427,12 @@ class OverTimeController {
 
     @Secured(['ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_HR'])
     def checkOvertime() {
-
         def overtimeMaster = OvertimeMaster.get(params.overTimeMasterId)
         def notification = Notification.get(params.notificationId)
         notification.status = 'read'
         notification.save(flush: true)
         render view: 'checkOverTime', model: [overTimeMaster: overtimeMaster, notification: notification]
     }
-
 
     @Secured(['ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_HR'])
     def acceptOverTime() {
@@ -453,8 +453,8 @@ class OverTimeController {
         notification.message = "you have to check Overtime sheet again "+overtimeMaster.id
         notification.targetUser = overtimeMaster.secUser.username
         notification.status = "unread"
-        notification.masterId = params.selectedOverTimeMasterId
-        notification.masterId = params.overTimeMasterId
+        //notification.masterId = params.selectedOverTimeMasterId
+        notification.masterId = Integer.valueOf(params.overTimeMasterId)
         notification.save(flush: true)
 
         def notificationUnreadMessage = Notification.createCriteria().list() {
@@ -477,11 +477,31 @@ class OverTimeController {
     }
 
     @Secured(['ROLE_ADMIN', 'ROLE_HR'])
-    def hrCheckNoti() {
+    def hrShowAll() {
         def overTimeMasterList = OvertimeMaster.createCriteria().list() {
             eq("status", "300")
         }
 
+        render view: 'showHr', model: [overTimeMasterList: overTimeMasterList]
+    }
+
+    @Secured(['ROLE_ADMIN', 'ROLE_HR'])
+    def hrCheckInfo() {
+        def overTimeMasterId = Integer.valueOf(params.overTimeMasterId)
+
+        def overTimeMaster = OvertimeMaster.get(overTimeMasterId)
+
+        render view: 'checkOverTimeForHr', model: [overTimeMaster: overTimeMaster]
+    }
+
+    @Secured(['ROLE_ADMIN', 'ROLE_HR'])
+    def hrAcceptOverTime() {
+        def overtimeMaster = OvertimeMaster.get(params.overTimeMasterId)
+        overtimeMaster.status = '400'
+        overtimeMaster.save(flush: true)
+        def data = [message:"Request was accpeted "+overtimeMaster.id]
+
+        brokerMessagingTemplate.convertAndSendToUser(overtimeMaster.secUser.username,"/queue/messagetoemployeesucsess",data)
         redirect action: 'show'
     }
 
@@ -502,6 +522,13 @@ class OverTimeController {
     @MessageMapping("/messagetoemployee")
     @SendTo("/queue/messagetoemployee")
     protected String sendToEmployee(def data) {
+        return "${data}"
+    }
+
+    @Secured(['ROLE_ADMIN', 'ROLE_EMPLOYEE', 'ROLE_MANAGER', 'ROLE_HR'])
+    @MessageMapping("/messagetoemployeesucsess")
+    @SendTo("/queue/messagetoemployeesucsess")
+    protected String sendToEmployeeSucsess(def data) {
         return "${data}"
     }
 

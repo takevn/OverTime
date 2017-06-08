@@ -32,19 +32,19 @@
             </td>
             <td>
                 <g:if test="${temp.weekday == 1 || temp.weekday == 7}">
-                    <input type="text" class="col-sm-5 get-paid-leave" name="hoursPaidLeave_${stt+1}" id="hoursPaidLeave_${stt+1}" disabled="disabled"/>
+                    <input type="text" class="col-sm-5 get-paid-leave get-time" name="hoursPaidLeave_${stt+1}" id="hoursPaidLeave_${stt+1}" disabled="disabled"/>
                 </g:if>
                 <g:else>
-                    <input type="text" class="col-sm-5 get-paid-leave" name="hoursPaidLeave_${stt+1}" id="hoursPaidLeave_${stt+1}" />
+                    <input type="text" class="col-sm-5 get-paid-leave get-time" name="hoursPaidLeave_${stt+1}" id="hoursPaidLeave_${stt+1}" />
                 </g:else>
 
             </td>
             <td>
                 <g:if test="${temp.weekday == 1 || temp.weekday == 7}">
-                    <input type="text" class="col-sm-5 get-unpaid-leave" name="hoursUnPaidLeave_${stt+1}" id="hoursUnPaidLeave_${stt+1}" disabled="disabled"/>
+                    <input type="text" class="col-sm-5 get-unpaid-leave get-time" name="hoursUnPaidLeave_${stt+1}" id="hoursUnPaidLeave_${stt+1}" disabled="disabled"/>
                 </g:if>
                 <g:else>
-                    <input type="text" class="col-sm-5 get-unpaid-leave" name="hoursUnPaidLeave_${stt+1}" id="hoursUnPaidLeave_${stt+1}" />
+                    <input type="text" class="col-sm-5 get-unpaid-leave get-time" name="hoursUnPaidLeave_${stt+1}" id="hoursUnPaidLeave_${stt+1}" />
                 </g:else>
 
             </td>

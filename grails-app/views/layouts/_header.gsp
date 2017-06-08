@@ -318,23 +318,6 @@
     </script>
 </sec:ifAllGranted >
 
-<sec:ifAllGranted roles='ROLE_EMPLOYEE'>
-    <script>
-        $( document ).ready(function() {
-                var socket = new SockJS("${createLink(uri: '/stomp')}");
-                var client = Stomp.over(socket);
 
-                client.connect({}, function() {
-                    client.subscribe("/user/queue/messagetoemployee", function(message) {
-                        var data = JSON.parse(message.body);
-                        $('#notificationNum').text(data.notificationUnreadMessage);
-
-                        $('#messageList').append("<li><a href='${request.contextPath}/employeeCheckAgain?overTimeMasterId="+data.overTimeMasterId +"&notificationId="+data.notificationId+"'><i class='fa fa-users text-aqua'>"+data.message+"</i><a></li>");
-
-                    });
-                });
-            });
-    </script>
-</sec:ifAllGranted >
 
 

@@ -44,7 +44,7 @@
         border-collapse: collapse;
         }
 
-        table, th, td {
+        table, th, td.border {
         text-align:center;
         vertical-align:middle;
         border: 1px solid black;
@@ -64,28 +64,38 @@
         .text-font {
         font-weight: bold;
         }
+        .bottom-border {
+            border-bottom: 1px solid #000;
+        }
     </style>
 </head>
 <body class="margin-200">
-    <div class="text-font ">
-        Month: ${overTimeMaster.month}    Year: ${overTimeMaster.year}
+    <div class="text-font border">
+        <tr>
+            <td class=" border">Month: </td>
+            <td class=" border">${overTimeMaster.month}</td>
+            <td class=" border">Year: </td>
+            <td class=" border">${overTimeMaster.year}</td>
+        </tr>
         <br>
-        <br>
-        Division: IT
-        <br>
-        <br>
-        Name: <sec:loggedInUserInfo field='username'/>
+        <tr>
+            <td class="bottom-border">Division: IT</td>
+        </tr>
+        <tr>
+            <td class="bottom-border">Name: <sec:loggedInUserInfo field='username'/></td>
+        </tr>
     </div>
-    <table class="">
+
+    <table class="border">
         <thead>
             <tr >
                 <th>Date</th>
-                <th class="padding-5">Day</th>
-                <th class="padding-5">StartTime</th>
-                <th class="padding-5">EndTime</th>
-                <th class="wrap-word">Actual Working Hours</th>
-                <th class="padding-5">Hours Of Overtime (For Working Day)</th>
-                <th class="padding-5">Hours Of Overtime (For Sunday)</th>
+                <th class="padding-5 border">Day</th>
+                <th class="padding-5 border">StartTime</th>
+                <th class="padding-5 border">EndTime</th>
+                <th class="wrap-word border">Actual Working Hours</th>
+                <th class="padding-5 border">Hours Of Overtime (For Working Day)</th>
+                <th class="padding-5 border">Hours Of Overtime (For Sunday)</th>
             </tr>
         </thead>
         <tbody>
@@ -94,13 +104,13 @@
                 <g:if test="${temp.comeTime != '0' || temp.leaveTime != '0'}">
                     <g:if test="${temp.overTimeNormal != '0' || temp.overTimeWeekend != '0'}">
                         <tr>
-                            <td class="padding-5">${temp.day}</td>
-                            <td class="padding-5"><g:message code="day.of.week.${temp.weekday}" /></td>
-                            <td class="padding-5">${temp.comeTime}</td>
-                            <td class="padding-5">${temp.leaveTime}</td>
-                            <td class="padding-5">${temp.actualTime}</td>
-                            <td class="padding-5">${temp.overTimeNormal}</td>
-                            <td class="padding-5">${temp.overTimeWeekend}</td>
+                            <td class="padding-5 border">${temp.day}</td>
+                            <td class="padding-5 border"><g:message code="day.of.week.${temp.weekday}" /></td>
+                            <td class="padding-5 border">${temp.comeTime}</td>
+                            <td class="padding-5 border">${temp.leaveTime}</td>
+                            <td class="padding-5 border">${temp.actualTime}</td>
+                            <td class="padding-5 border">${temp.overTimeNormal}</td>
+                            <td class="padding-5 border">${temp.overTimeWeekend}</td>
                         </tr>
                     </g:if>
                 </g:if>

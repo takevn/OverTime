@@ -7,7 +7,7 @@ class Notification {
     String status
     Date dateCreated
     Date lastUpdated
-    String masterId
+    int masterId
 
     static constraints = {
         message nullable: true
