@@ -8,7 +8,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class OverTime {
-    double roundHalf(double inputNumber) {
+
+    public static final String PAID_LEAVE_OR_UNPAID_LEAVE = "100";
+    public static final String COME_ON_TIME = "200";
+    public static final String COME_LATE = "300";
+
+    static double roundHalf(double inputNumber) {
         float roundedNumber = Math.round(inputNumber - 0.5);
         if ((inputNumber - roundedNumber) >= 0.5) {
             return (roundedNumber + 0.5);
@@ -16,22 +21,22 @@ public class OverTime {
         return roundedNumber;
     }
 
-          Map<String, Object> getOverTimeUsingCalendar(String comeDate, String leaveDate, String hoursPaidLeave, String hoursUnPaidLeave) {
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    static Map<String, Object> getOverTimeUsingCalendar(String comeDate, String leaveDate, String hoursPaidLeave, String hoursUnPaidLeave) {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 //        DateFormat df = new SimpleDateFormat("HH:mm");
-            Calendar calComeDate = Calendar.getInstance();
-            Calendar calLeaveDate = Calendar.getInstance();
-            final double EIGHT_HOURS = 8;
-            double overTimeInHours = 0;
-            boolean isWeekend = false;
-            double actualWokingTime = 0;
-            String statusCome = "";
-            Map<String, Object> resultMap = new HashMap<String, Object>() {
-            };
+        Calendar calComeDate = Calendar.getInstance();
+        Calendar calLeaveDate = Calendar.getInstance();
+        final double EIGHT_HOURS = 8;
+        double overTimeInHours = 0;
+        boolean isWeekend = false;
+        double actualWokingTime = 0;
+        String statusCome = "";
+        Map<String, Object> resultMap = new HashMap<String, Object>() {
+        };
 
         try {
-            calComeDate.setTime(df.parse(comeDate));
-            calLeaveDate.setTime(df.parse(leaveDate));
+            calComeDate.setTime(dateFormat.parse(comeDate));
+            calLeaveDate.setTime(dateFormat.parse(leaveDate));
 
             roundComeDate(calComeDate);
             roundLeaveDate(calLeaveDate);
@@ -46,9 +51,11 @@ public class OverTime {
             if (actualWokingTime < 0) {
                 actualWokingTime = 0;
             }
-            if (calLeaveDate.get(Calendar.DAY_OF_WEEK) == 1) {
+
+            if (calLeaveDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
                 isWeekend = true;
             }
+            // caculate overTime in hours
             // NORMAL DAY case
             if (!isWeekend) {
                 overTimeInHours = actualWokingTime - EIGHT_HOURS;
@@ -70,30 +77,28 @@ public class OverTime {
         return resultMap;
     }
 
-    private String getStatusCome(String hoursPaidLeave, String hoursUnPaidLeave, Calendar calComeDate, boolean isWeekend, String statusCome) {
+    private static String getStatusCome(String hoursPaidLeave, String hoursUnPaidLeave, Calendar calComeDate, boolean isWeekend, String statusCome) {
         if (!isWeekend) {
             if (hoursPaidLeave != "" || hoursUnPaidLeave != "") {
-                statusCome = "100";
+                statusCome = PAID_LEAVE_OR_UNPAID_LEAVE;
             } else {
-                int a = calComeDate.get(Calendar.HOUR_OF_DAY);
-                int b = calComeDate.get(Calendar.MINUTE);
                 if (calComeDate.get(Calendar.HOUR_OF_DAY) == 8) {
                     if (calComeDate.get(Calendar.MINUTE) > 0 && calComeDate.get(Calendar.MINUTE) <= 16) {
-                        statusCome = "200";
+                        statusCome = COME_ON_TIME;
                     } else {
                         if (calComeDate.get(Calendar.MINUTE) > 16) {
-                            statusCome = "300";
+                            statusCome = COME_LATE;
                         }
                     }
                 } else if (calComeDate.get(Calendar.HOUR_OF_DAY) > 8) {
-                    statusCome = "300";
+                    statusCome = COME_LATE;
                 }
             }
         }
         return statusCome;
     }
 
-    private void roundComeDate(Calendar comeTime) {
+    private static void roundComeDate(Calendar comeTime) {
         // if HOUR_OF_DAY then hour set to 08:00 and return
         comeTime.get(Calendar.DAY_OF_MONTH);
         if (comeTime.get(Calendar.HOUR_OF_DAY) < 8) {
@@ -107,8 +112,8 @@ public class OverTime {
             comeTime.set(Calendar.HOUR_OF_DAY, 12);
             comeTime.set(Calendar.MINUTE, 0);
             return;
-        } else if((comeTime.get(Calendar.HOUR_OF_DAY) >= 13)) {
-            comeTime.set(Calendar.HOUR_OF_DAY, comeTime.get(Calendar.HOUR_OF_DAY) -1);
+        } else if ((comeTime.get(Calendar.HOUR_OF_DAY) >= 13)) {
+            comeTime.set(Calendar.HOUR_OF_DAY, comeTime.get(Calendar.HOUR_OF_DAY) - 1);
         }
 
         // minute come <= 30 then round to 30
@@ -121,7 +126,7 @@ public class OverTime {
         }
     }
 
-    private void roundLeaveDate(Calendar leaveTime) {
+    private static void roundLeaveDate(Calendar leaveTime) {
         // if leaveTime <= 12:00 then do nothing
         if (leaveTime.get(Calendar.HOUR_OF_DAY) < 11) {
 
@@ -168,27 +173,11 @@ public class OverTime {
         // return
     }
 
-    private void roundMinuteLeaveTime(Calendar calendar) {
+    private static void roundMinuteLeaveTime(Calendar calendar) {
         if (calendar.get(Calendar.MINUTE) < 30) {
             calendar.set(Calendar.MINUTE, 0);
         } else {
             calendar.set(Calendar.MINUTE, 30);
-        }
-    }
-
-    private void roundHourOfLeaveDate(Calendar calendar) {
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
-        // if hour > 20:15
-        if ((calendar.get(Calendar.HOUR_OF_DAY) > 20) ||
-                ((calendar.get(Calendar.HOUR_OF_DAY) == 20) && (calendar.get(Calendar.MINUTE) >= 15))) {
-
-            calendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY) - 1);
-
-        } else if (((calendar.get(Calendar.HOUR_OF_DAY) == 20) && (calendar.get(Calendar.MINUTE) < 15)) ||
-                (calendar.get(Calendar.HOUR_OF_DAY) == 19) && (calendar.get(Calendar.MINUTE) >= 15)) {
-            calendar.set(Calendar.HOUR_OF_DAY, 19);
-            calendar.set(Calendar.MINUTE, 15);
         }
     }
 }
