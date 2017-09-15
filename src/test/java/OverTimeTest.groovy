@@ -75,6 +75,12 @@ class OverTimeTest extends Specification {
         '13:30'  | 12   | 30
         '13:59'  | 13   | 0
         '13:60'  | 13   | 0
+        // After 13:00
+        '14:00'  | 13   | 0
+        '14:16'  | 13   | 30
+        '14:30'  | 13   | 30
+        '14:59'  | 14   | 0
+        '14:60'  | 14   | 0
     }
 
     @Unroll
@@ -129,7 +135,7 @@ class OverTimeTest extends Specification {
     }
 
     @Unroll
-    def "getOverTimeUsingCalendar(#comeDate, #leaveDate): #actualWorkingTime hour, #ot hour, isWeekend: #isWeekend"() {
+    def "getOverTimeUsingCalendar(#comeDate, #leaveDate): #actualWorkingTime hour, #ot"() {
         given:
         Map<String, Object> resultMap = new HashMap<String, Object>() {}
         resultMap = overTime.getOverTimeUsingCalendar(comeDate, leaveDate, "0", "0")
@@ -177,6 +183,7 @@ class OverTimeTest extends Specification {
         "2017-04-30 8:15"  | "2017-04-30 16:30" | true      | 7                 | 7
         "2017-04-30 8:30"  | "2017-04-30 16:30" | true      | 7                 | 7
         "2017-04-30 8:31"  | "2017-04-30 16:30" | true      | 6.5               | 6.5
+        "2017-04-30 8:29"  | "2017-04-30 16:00" | true      | 6.5               | 6.5
         "2017-04-30 7:00"  | "2017-04-30 16:30" | true      | 7.5               | 7.5
         "2017-04-30 7:00"  | "2017-04-30 17:00" | true      | 8                 | 8
         "2017-04-30 7:00"  | "2017-04-30 17:45" | true      | 8.5               | 8.5
@@ -184,7 +191,38 @@ class OverTimeTest extends Specification {
         "2017-04-30 7:00"  | "2017-04-30 20:00" | true      | 10                | 10
         "2017-04-30 7:00"  | "2017-04-30 20:15" | true      | 10                | 10
         "2017-04-30 7:00"  | "2017-04-30 23:15" | true      | 13                | 13
-        "2017-04-30 13:00"  | "2017-04-30 17:35" | true      | 4                 | 4
+        "2017-04-30 13:00" | "2017-04-30 17:35" | true      | 4                 | 4
+        "2017-04-30 13:59" | "2017-04-30 13:01" | true      | 0                 | 0
     }
+    public static final String PAID_LEAVE_OR_UNPAID_LEAVE = "100";
+    public static final String COME_ON_TIME = "200";
+    public static final String COME_LATE = "300";
 
+    @Unroll
+    def "getStatusCome(#hoursPaidLeave, #hoursUnPaidLeave, #comeDate): #statusCome"() {
+        given:
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        Calendar calComeDate = Calendar.getInstance();
+        calComeDate.setTime(df.parse(comeDate));
+        expect:
+        overTime.getStatusCome(hoursPaidLeave, hoursUnPaidLeave, calComeDate) == statusCome
+        where:
+        hoursPaidLeave | hoursUnPaidLeave | comeDate          | statusCome
+        null           | null             | "2010-04-30 8:00" | PAID_LEAVE_OR_UNPAID_LEAVE
+        ""             | ""               | "2010-04-30 8:00" | COME_ON_TIME
+        "1"            | null             | "2010-04-30 8:00" | PAID_LEAVE_OR_UNPAID_LEAVE
+        null           | "1"              | "2010-04-30 8:00" | PAID_LEAVE_OR_UNPAID_LEAVE
+        "1"            | "1"              | "2010-04-30 8:00" | PAID_LEAVE_OR_UNPAID_LEAVE
+        ""             | ""               | "2010-04-30 8:00" | COME_ON_TIME
+        ""             | ""               | "2010-04-30 8:01" | COME_ON_TIME
+        ""             | ""               | "2010-04-30 8:15" | COME_ON_TIME
+        ""             | ""               | "2010-04-30 8:16" | COME_LATE
+        ""             | ""               | "2010-04-30 9:16" | COME_LATE
+        // sunday
+        ""             | ""               | "2017-04-30 8:00" | ""
+        ""             | ""               | "2017-04-30 8:01" | ""
+        ""             | ""               | "2017-04-30 8:15" | ""
+        ""             | ""               | "2017-04-30 8:16" | ""
+
+    }
 }

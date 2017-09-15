@@ -30,7 +30,6 @@ public class OverTime {
         double overTimeInHours = 0;
         boolean isWeekend = false;
         double actualWokingTime = 0;
-        String statusCome = "";
         Map<String, Object> resultMap = new HashMap<String, Object>() {
         };
 
@@ -52,7 +51,7 @@ public class OverTime {
                 actualWokingTime = 0;
             }
 
-            if (calLeaveDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+            if (calComeDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
                 isWeekend = true;
             }
             // caculate overTime in hours
@@ -67,7 +66,7 @@ public class OverTime {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        statusCome = getStatusCome(hoursPaidLeave, hoursUnPaidLeave, calComeDate, isWeekend, statusCome);
+        String statusCome = getStatusCome(hoursPaidLeave, hoursUnPaidLeave, calComeDate);
 
         resultMap.put("isWeekend", isWeekend);
         resultMap.put("actualWokingTime", roundHalf(actualWokingTime));
@@ -77,25 +76,30 @@ public class OverTime {
         return resultMap;
     }
 
-    private static String getStatusCome(String hoursPaidLeave, String hoursUnPaidLeave, Calendar calComeDate, boolean isWeekend, String statusCome) {
-        if (!isWeekend) {
-            if (hoursPaidLeave != "" || hoursUnPaidLeave != "") {
-                statusCome = PAID_LEAVE_OR_UNPAID_LEAVE;
-            } else {
-                if (calComeDate.get(Calendar.HOUR_OF_DAY) == 8) {
-                    if (calComeDate.get(Calendar.MINUTE) > 0 && calComeDate.get(Calendar.MINUTE) <= 16) {
-                        statusCome = COME_ON_TIME;
-                    } else {
-                        if (calComeDate.get(Calendar.MINUTE) > 16) {
-                            statusCome = COME_LATE;
-                        }
-                    }
-                } else if (calComeDate.get(Calendar.HOUR_OF_DAY) > 8) {
-                    statusCome = COME_LATE;
-                }
-            }
+    /**
+     * calComeDate have been roundComeDate() then always 8:00 or higher
+     */
+    private static String getStatusCome(String hoursPaidLeave, String hoursUnPaidLeave, Calendar calComeDate) {
+        boolean isWeekend = calComeDate.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY;
+        // Weekend day
+        if (isWeekend) {
+            return "";
         }
-        return statusCome;
+        // PAID_LEAVE_OR_UNPAID_LEAVE
+        if (hoursPaidLeave != "" || hoursUnPaidLeave != "") {
+            return PAID_LEAVE_OR_UNPAID_LEAVE;
+        }
+        // normal day and not PAID_LEAVE_OR_UNPAID_LEAVE
+        // if comeHour > 8
+        if (calComeDate.get(Calendar.HOUR_OF_DAY) > 8) {
+            return COME_LATE;
+        }
+        // if comeHour <= 8 and minute > 15
+        if (calComeDate.get(Calendar.MINUTE) > 15) {
+            return COME_LATE;
+        }
+        // if comeHour <= 8 and minute < 15
+        return COME_ON_TIME;
     }
 
     private static void roundComeDate(Calendar comeTime) {
@@ -106,7 +110,8 @@ public class OverTime {
             comeTime.set(Calendar.MINUTE, 0);
             return;
         }
-
+        // if come after 11h30 and before 13h then set then to 12h and return
+        // else if come after 13h then set hour minus 1
         if ((comeTime.get(Calendar.HOUR_OF_DAY) == 11) && (comeTime.get(Calendar.MINUTE) > 30)
                 || (comeTime.get(Calendar.HOUR_OF_DAY) == 12) && (comeTime.get(Calendar.MINUTE) <= 59)) {
             comeTime.set(Calendar.HOUR_OF_DAY, 12);
